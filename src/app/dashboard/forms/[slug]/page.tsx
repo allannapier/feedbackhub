@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { CopyButton } from '@/components/CopyButton'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
+import { DashboardLayout } from '@/components/DashboardLayout'
 import FormDetailClient from './FormDetailClient'
 
 export default async function FormDetailPage({ 
@@ -45,16 +46,17 @@ export default async function FormDetailPage({
   const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL}/forms/${form.slug}`
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+    <DashboardLayout user={user}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex justify-between items-start">
           <div>
             <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800 text-sm">
               ← Back to Dashboard
             </Link>
             <h1 className="text-3xl font-bold text-gray-900 mt-2">{form.title}</h1>
+            <p className="text-gray-600 mt-1">Form details and analytics</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <Link
               href={publicUrl}
               target="_blank"
@@ -62,16 +64,16 @@ export default async function FormDetailPage({
             >
               View Public Form
             </Link>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+            <Link
+              href={`/dashboard/forms/${form.slug}/edit`}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
               Edit Form
-            </button>
+            </Link>
           </div>
         </div>
-      </header>
-      
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Form Overview */}
             <div className="lg:col-span-2">
               <div className="bg-white shadow rounded-lg p-6 mb-6">
@@ -140,13 +142,11 @@ export default async function FormDetailPage({
                     <p className="text-sm text-gray-600">Average Rating</p>
                   </div>
                 </div>
-              </div>
-
-              <ActionsSidebar form={form} />
-            </div>
           </div>
+
+          <ActionsSidebar form={form} />
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

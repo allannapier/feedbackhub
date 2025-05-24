@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { DashboardLayout } from '@/components/DashboardLayout'
 
 export default async function AnalyticsPage() {
   const supabase = await createClient()
@@ -40,28 +41,15 @@ export default async function AnalyticsPage() {
   const totalForms = forms?.length || 0
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/dashboard"
-              className="text-indigo-600 hover:text-indigo-800"
-            >
-              ← Back to Dashboard
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome, {user.email}</span>
-          </div>
+    <DashboardLayout user={{ email: user.email || '', name: user.user_metadata?.name || user.email }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
+          <p className="mt-2 text-gray-600">View insights and metrics for your feedback forms</p>
         </div>
-      </header>
-      
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Overview Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        {/* Overview Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
                 <div className="p-3 rounded-full bg-blue-100">
@@ -108,10 +96,10 @@ export default async function AnalyticsPage() {
                 </div>
               </div>
             </div>
-          </div>
+        </div>
 
-          {/* Forms Overview */}
-          <div className="bg-white rounded-lg shadow mb-8">
+        {/* Forms Overview */}
+        <div className="bg-white rounded-lg shadow mb-8">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Your Forms</h2>
             </div>
@@ -165,10 +153,10 @@ export default async function AnalyticsPage() {
                 </div>
               )}
             </div>
-          </div>
+        </div>
 
-          {/* Recent Responses */}
-          <div className="bg-white rounded-lg shadow">
+        {/* Recent Responses */}
+        <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Recent Responses</h2>
             </div>
@@ -222,9 +210,8 @@ export default async function AnalyticsPage() {
                 </div>
               )}
             </div>
-          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

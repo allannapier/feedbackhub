@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { DashboardLayout } from '@/components/DashboardLayout'
 
 interface Request {
   id: string
@@ -71,27 +72,21 @@ export default function RequestHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <Link href="/dashboard/requests" className="text-indigo-600 hover:text-indigo-800 text-sm">
-                ← Back to Send Requests
-              </Link>
-              <h1 className="text-3xl font-bold text-gray-900 mt-2">Request History</h1>
-            </div>
-            <Link
-              href="/dashboard/requests"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-            >
-              Send New Requests
-            </Link>
+    <DashboardLayout user={null}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Request History</h1>
+            <p className="mt-2 text-gray-600">Track your sent feedback requests and responses</p>
           </div>
+          <Link
+            href="/dashboard/requests"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Send New Requests
+          </Link>
         </div>
-      </header>
-      
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             {/* Filter */}
@@ -180,7 +175,7 @@ export default function RequestHistoryPage() {
             )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

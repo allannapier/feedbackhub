@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { DashboardLayout } from '@/components/DashboardLayout'
 
 interface Form {
   id: string
@@ -110,14 +111,12 @@ export default function RequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+    <DashboardLayout user={null}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex justify-between items-center">
           <div>
-            <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800 text-sm">
-              ← Back to Dashboard
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mt-2">Send Feedback Requests</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Send Feedback Requests</h1>
+            <p className="mt-2 text-gray-600">Send personalized feedback requests to your customers</p>
           </div>
           <Link
             href="/dashboard/requests/history"
@@ -126,9 +125,7 @@ export default function RequestsPage() {
             View Request History
           </Link>
         </div>
-      </header>
-      
-      <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+        
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             {result && (
@@ -241,7 +238,7 @@ support@company.com"
             </form>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }
