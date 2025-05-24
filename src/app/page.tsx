@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
@@ -9,12 +11,18 @@ export default function Home() {
           Turn customer feedback into social proof with one click
         </p>
         <div className="flex gap-4 justify-center">
-          <button className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition">
+          <Link 
+            href="/auth"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+          >
             Get Started
-          </button>
-          <button className="px-6 py-3 border border-border rounded-md hover:bg-accent transition">
-            Learn More
-          </button>
+          </Link>
+          <Link 
+            href="/demo"
+            className="px-6 py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition"
+          >
+            See Demo
+          </Link>
         </div>
       </div>
     </main>
