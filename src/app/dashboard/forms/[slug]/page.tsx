@@ -46,7 +46,7 @@ export default async function FormDetailPage({
   const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL}/forms/${form.slug}`
 
   return (
-    <DashboardLayout user={user}>
+    <DashboardLayout user={{ email: user.email || '', name: user.user_metadata?.name || user.email }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex justify-between items-start">
           <div>
@@ -74,8 +74,8 @@ export default async function FormDetailPage({
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Form Overview */}
-            <div className="lg:col-span-2">
+          {/* Form Overview */}
+          <div className="lg:col-span-2">
               <div className="bg-white shadow rounded-lg p-6 mb-6">
                 <h2 className="text-xl font-semibold mb-4">Form Overview</h2>
                 <div className="space-y-4">
@@ -115,10 +115,10 @@ export default async function FormDetailPage({
                   <p className="text-gray-500 text-center py-8">No responses yet</p>
                 )}
               </div>
-            </div>
+          </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
+          {/* Sidebar */}
+          <div className="space-y-6">
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-medium mb-4">Quick Stats</h3>
                 <div className="space-y-4">
@@ -142,11 +142,12 @@ export default async function FormDetailPage({
                     <p className="text-sm text-gray-600">Average Rating</p>
                   </div>
                 </div>
-          </div>
+              </div>
 
-          <ActionsSidebar form={form} />
+              <ActionsSidebar form={form} />
+            </div>
+          </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
   )
 }
