@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  forms         Form[]
+  plan          String    @default("free") // free, starter, pro, scale
+  customerId    String?   @unique // Stripe customer ID
+  subscription  Json?     // Stripe subscription data
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Form {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  question      String
+  type          String      // rating, text, nps, yesno, multiple
+  settings      Json        // colors, branding, thank you message, etc
+  slug          String      @unique
+  responses     Response[]
+  requests      Request[]
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@index([userId])
+  @@index([slug])
+}
+model Response {
+  id            String    @id @default(cuid())
+  formId        String
+  form          Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  rating        Int?      // For rating type
+  text          String?   // For text responses
+  answer        String?   // For yes/no or multiple choice
+  respondentEmail String?
+  respondentName  String?
+  metadata      Json?     // IP, user agent, etc
+  shared        Boolean   @default(false)
+  sharedAt      DateTime?
+  shareData     Json?     // Which platforms it was shared to
+  createdAt     DateTime  @default(now())
+  
+  @@index([formId])
+  @@index([createdAt])
+}
+
+model Request {
+  id            String    @id @default(cuid())
+  formId        String
+  form          Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  recipientEmail String
+  recipientName String?
+  status        String    @default("pending") // pending, sent, opened, responded
+  sentAt        DateTime?
+  openedAt      DateTime?
+  respondedAt   DateTime?
+  responseId    String?   // Link to Response if they responded
+  reminderCount Int       @default(0)
+  lastReminder  DateTime?
+  createdAt     DateTime  @default(now())
+  
+  @@index([formId])
+  @@index([status])
+}
+
+model ShareTemplate {
+  id            String    @id @default(cuid())
+  name          String
+  platform      String    // twitter, linkedin, facebook, instagram
+  template      String    // Template with variables like {{feedback}}, {{name}}
+  isDefault     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+}
