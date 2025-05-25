@@ -94,7 +94,7 @@ export default function FormDetailClient({ form }: FormDetailClientProps) {
       {/* Share Modal */}
       {selectedResponse && (
         <ShareModal
-          response={selectedResponse}
+          response={{...selectedResponse, formId: form.id}}
           form={form}
           isOpen={shareModalOpen}
           onClose={closeShareModal}

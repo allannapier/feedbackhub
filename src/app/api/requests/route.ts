@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
             formQuestion: form.question,
             feedbackUrl,
             customMessage,
-            businessName: user.name || user.email
+            businessName: user.email
           })
         })
 
