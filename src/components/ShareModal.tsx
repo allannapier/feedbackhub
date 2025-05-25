@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { RatingDisplay } from '@/components/RatingDisplay'
 
@@ -23,10 +23,46 @@ interface ShareModalProps {
   onClose: () => void
 }
 
+interface UserUsage {
+  currentMonth: any
+  limits: {
+    feedbackRequests: number
+    socialShares: number
+    platforms: string[]
+  }
+  canCreateFeedbackRequest: boolean
+  canShareSocial: boolean
+  remainingFeedbackRequests: number
+  remainingSocialShares: number
+}
+
 export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [imageUrl, setImageUrl] = useState<string>('')
   const [shareText, setShareText] = useState('')
+  const [usage, setUsage] = useState<UserUsage | null>(null)
+  const [loadingUsage, setLoadingUsage] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchUsage()
+    }
+  }, [isOpen])
+
+  const fetchUsage = async () => {
+    setLoadingUsage(true)
+    try {
+      const response = await fetch('/api/usage')
+      if (response.ok) {
+        const data = await response.json()
+        setUsage(data.usage)
+      }
+    } catch (error) {
+      console.error('Error fetching usage:', error)
+    } finally {
+      setLoadingUsage(false)
+    }
+  }
 
   if (!isOpen) return null
 
@@ -54,27 +90,44 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     }
   }
 
-  const shareToTwitter = () => {
+  const shareToTwitter = async () => {
+    if (!usage?.limits.platforms.includes('twitter') && !usage?.limits.platforms.includes('x')) {
+      alert('Twitter/X sharing is only available on Pro plan. Please upgrade to access all platforms.')
+      return
+    }
+
+    if (!usage?.canShareSocial) {
+      alert(`Monthly social share limit reached (${usage?.limits.socialShares}). Please upgrade to Pro for unlimited shares.`)
+      return
+    }
+
     const tweetText = encodeURIComponent(shareText)
     const url = `https://twitter.com/intent/tweet?text=${tweetText}`
-    if (imageUrl) {
-      // For image sharing, we'd need to implement file upload to Twitter API
-      window.open(url, '_blank')
-    } else {
-      window.open(url, '_blank')
-    }
-    markAsShared('twitter')
+    window.open(url, '_blank')
+    await markAsShared('twitter')
   }
 
-  const shareToLinkedIn = () => {
+  const shareToLinkedIn = async () => {
+    if (!usage?.limits.platforms.includes('linkedin')) {
+      alert('LinkedIn sharing is only available on Pro plan. Please upgrade to access all platforms.')
+      return
+    }
+
+    if (!usage?.canShareSocial) {
+      alert(`Monthly social share limit reached (${usage?.limits.socialShares}). Please upgrade to Pro for unlimited shares.`)
+      return
+    }
+
     const text = encodeURIComponent(shareText)
     const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&summary=${text}`
     window.open(url, '_blank')
-    markAsShared('linkedin')
+    await markAsShared('linkedin')
   }
 
   const markAsShared = async (platform: string) => {
     const supabase = createClient()
+    
+    // Update response as shared
     await supabase
       .from('Response')
       .update({ 
@@ -83,6 +136,27 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
         shareData: { platform, sharedAt: new Date().toISOString() }
       })
       .eq('id', response.id)
+
+    // Increment social share usage
+    try {
+      const response = await fetch('/api/usage/social-share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ platform })
+      })
+      
+      if (response.ok) {
+        // Refresh usage data
+        await fetchUsage()
+      } else {
+        const error = await response.json()
+        console.error('Error tracking social share usage:', error)
+      }
+    } catch (error) {
+      console.error('Error tracking social share usage:', error)
+    }
   }
 
   return (
@@ -100,6 +174,30 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
               </svg>
             </button>
           </div>
+
+          {/* Usage Display */}
+          {usage && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-blue-900">Social Shares This Month</h3>
+                  <p className="text-sm text-blue-700">
+                    {usage.limits.socialShares === -1 
+                      ? `${usage.currentMonth?.socialShares || 0} shares (Unlimited)`
+                      : `${usage.currentMonth?.socialShares || 0} / ${usage.limits.socialShares} shares`
+                    }
+                  </p>
+                </div>
+                {usage.limits.socialShares !== -1 && (
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-blue-900">
+                      {usage.remainingSocialShares} remaining
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Feedback Preview */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -176,21 +274,29 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={shareToTwitter}
-                  className="flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  disabled={!usage?.canShareSocial || (!usage?.limits.platforms.includes('twitter') && !usage?.limits.platforms.includes('x'))}
+                  className="flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
                   </svg>
-                  Twitter
+                  X (Twitter)
+                  {(!usage?.limits.platforms.includes('twitter') && !usage?.limits.platforms.includes('x')) && (
+                    <span className="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded">Pro</span>
+                  )}
                 </button>
                 <button
                   onClick={shareToLinkedIn}
-                  className="flex items-center justify-center px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800"
+                  disabled={!usage?.canShareSocial || !usage?.limits.platforms.includes('linkedin')}
+                  className="flex items-center justify-center px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                   </svg>
                   LinkedIn
+                  {!usage?.limits.platforms.includes('linkedin') && (
+                    <span className="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded">Pro</span>
+                  )}
                 </button>
               </div>
             </div>

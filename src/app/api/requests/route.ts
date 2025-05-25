@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { getFormUrl } from '@/lib/url-utils'
+import { getUserUsage } from '@/lib/usage/utils'
+import { incrementFeedbackRequests } from '@/lib/usage/tracking'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +22,18 @@ export async function POST(request: NextRequest) {
     
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check usage limits before processing
+    const usage = await getUserUsage(user.id)
+    if (!usage.canCreateFeedbackRequest) {
+      return NextResponse.json({ 
+        error: 'Monthly feedback request limit reached. Please upgrade to Pro for unlimited requests.',
+        usage: {
+          remaining: usage.remainingFeedbackRequests,
+          limit: usage.limits.feedbackRequests
+        }
+      }, { status: 429 })
     }
 
     const body = await request.json()
@@ -127,6 +141,9 @@ export async function POST(request: NextRequest) {
               sentAt: new Date().toISOString()
             })
             .eq('id', requestRecord.id)
+          
+          // Increment usage counter for successful request
+          await incrementFeedbackRequests(user.id)
           
           results.push({ 
             email: recipient.email, 

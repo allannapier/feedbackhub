@@ -11,16 +11,17 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id            String        @id @default(cuid())
+  email         String        @unique
   name          String?
   avatarUrl     String?
   forms         Form[]
-  plan          String    @default("free") // free, starter, pro, scale
-  customerId    String?   @unique // Stripe customer ID
-  subscription  Json?     // Stripe subscription data
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  plan          String        @default("free") // free, pro
+  customerId    String?       @unique // Stripe customer ID
+  subscription  Json?         // Stripe subscription data
+  usageRecords  UsageRecord[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model Form {
@@ -86,4 +87,19 @@ model ShareTemplate {
   template      String    // Template with variables like {{feedback}}, {{name}}
   isDefault     Boolean   @default(false)
   createdAt     DateTime  @default(now())
+}
+
+model UsageRecord {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month         String    // Format: YYYY-MM (e.g., 2025-05)
+  feedbackRequests  Int   @default(0)
+  socialShares  Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@unique([userId, month])
+  @@index([userId])
+  @@index([month])
 }
