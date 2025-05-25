@@ -18,9 +18,12 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
   
-  // TEMPORARY: Use a reliable external service for Open Graph images
-  const imageText = `${businessName}\n"${feedback}"\n${'★'.repeat(parseInt(rating))} - ${customerName}`
-  const imageUrl = `https://via.placeholder.com/1200x630/667eea/ffffff?text=${encodeURIComponent(imageText)}`
+  // Use a working external image service
+  const title = `${businessName} - ${rating}/5 Stars`
+  const description = `"${feedback}" - ${customerName}`
+  
+  // Use Vercel's OG image service as a reliable fallback
+  const imageUrl = `https://og-image.vercel.app/${encodeURIComponent(title)}?theme=light&md=1&fontSize=100px&images=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Ffront%2Fassets%2Fdesign%2Fvercel-triangle-black.svg`
   
   return {
     title,
