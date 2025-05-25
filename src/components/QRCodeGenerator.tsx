@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CopyButton } from '@/components/CopyButton'
 
 interface QRCodeGeneratorProps {
@@ -9,9 +9,16 @@ interface QRCodeGeneratorProps {
 
 export function QRCodeGenerator({ formSlug }: QRCodeGeneratorProps) {
   const [size, setSize] = useState(200)
+  const [formUrl, setFormUrl] = useState('')
   
-  const formUrl = `${process.env.NEXT_PUBLIC_APP_URL}/forms/${formSlug}`
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(formUrl)}`
+  // Set the form URL when component mounts to avoid SSR issues
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setFormUrl(`${window.location.origin}/forms/${formSlug}`)
+    }
+  }, [formSlug])
+  
+  const qrCodeUrl = formUrl ? `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(formUrl)}` : ''
   
   const downloadQRCode = () => {
     const link = document.createElement('a')
@@ -45,17 +52,24 @@ export function QRCodeGenerator({ formSlug }: QRCodeGeneratorProps) {
         </div>
         
         <div className="flex justify-center">
-          <img 
-            src={qrCodeUrl} 
-            alt="QR Code for feedback form"
-            className="border border-gray-200 rounded"
-          />
+          {qrCodeUrl ? (
+            <img 
+              src={qrCodeUrl} 
+              alt="QR Code for feedback form"
+              className="border border-gray-200 rounded"
+            />
+          ) : (
+            <div className="w-[200px] h-[200px] bg-gray-100 border border-gray-200 rounded flex items-center justify-center">
+              <span className="text-gray-500 text-sm">Loading QR Code...</span>
+            </div>
+          )}
         </div>
         
         <div className="space-y-2">
           <button
             onClick={downloadQRCode}
-            className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            disabled={!qrCodeUrl}
+            className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Download QR Code
           </button>
@@ -66,8 +80,9 @@ export function QRCodeGenerator({ formSlug }: QRCodeGeneratorProps) {
               value={formUrl}
               readOnly
               className="flex-1 px-3 py-2 border border-gray-300 rounded bg-gray-50 text-sm"
+              placeholder="Loading URL..."
             />
-            <CopyButton text={formUrl} />
+            <CopyButton text={formUrl} disabled={!formUrl} />
           </div>
         </div>
         
