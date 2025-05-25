@@ -28,6 +28,7 @@ export function Navbar({ user }: NavbarProps) {
     { name: 'Analytics', href: '/dashboard/analytics', icon: '📈' },
     { name: 'Send Requests', href: '/dashboard/requests', icon: '📧' },
     { name: 'Request History', href: '/dashboard/requests/history', icon: '📋' },
+    { name: 'Settings', href: '/dashboard/settings', icon: '⚙️' },
   ]
 
   const isActive = (href: string) => {

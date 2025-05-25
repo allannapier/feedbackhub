@@ -81,9 +81,15 @@ export async function POST(request: NextRequest) {
         // Generate feedback link dynamically based on request
         const feedbackUrl = getFormUrl(form.slug, request)
         
+        // Determine the from email address based on environment
+        const emailDomain = process.env.EMAIL_FROM_DOMAIN || 'resend.dev'
+        const fromEmail = emailDomain === 'resend.dev' 
+          ? `${companyName} <onboarding@resend.dev>`
+          : `${companyName} <noreply@${emailDomain}>`
+        
         // Send real email via Resend
         const emailResult = await resend.emails.send({
-          from: `${companyName} <onboarding@resend.dev>`, // Using company name
+          from: fromEmail,
           to: [recipient.email],
           subject: `Quick feedback request: ${form.title}`,
           html: generateEmailHTML({
@@ -100,10 +106,17 @@ export async function POST(request: NextRequest) {
 
         if (emailResult.error) {
           console.error('Resend error:', emailResult.error)
-          errors.push({ email: recipient.email, error: emailResult.error.message || 'Email sending failed' })
+          let errorMessage = emailResult.error.message || 'Email sending failed'
+          
+          // Provide helpful error message for domain verification issues
+          if (errorMessage.includes('testing emails') || errorMessage.includes('verify a domain')) {
+            errorMessage = `Email domain not verified. Please verify your domain at resend.com/domains and update the EMAIL_FROM_DOMAIN environment variable. Current domain: ${emailDomain}`
+          }
+          
+          errors.push({ email: recipient.email, error: errorMessage })
           await supabase
             .from('Request')
-            .update({ status: 'failed' })
+            .update({ status: 'failed', errorMessage })
             .eq('id', requestRecord.id)
         } else {
           console.log('Email sent successfully:', emailResult.data)
