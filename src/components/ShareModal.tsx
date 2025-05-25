@@ -158,12 +158,18 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     
     // Show helpful message with debug option
     const debugUrl = `https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(shareUrl)}`
-    const message = `📘 Opening Facebook...\n\n💬 Your share text has been copied to your clipboard!\n📝 Paste it in the Facebook post when the dialog opens.\n\n🔧 If you see old/wrong content, click "Debug URL" to refresh Facebook's cache.`
+    const message = `📘 Facebook Sharing Options\n\n💬 Your share text has been copied to your clipboard!\n\n✅ Share immediately (recommended)\n🔧 Debug URL if you see wrong/old content\n\nNote: If Facebook shows old content, use the Debug option to refresh their cache.`
     
-    if (confirm(message + '\n\nClick OK to share, or Cancel to debug the URL first.')) {
+    const userChoice = confirm(message + '\n\nClick OK to SHARE NOW, or Cancel to DEBUG URL first.')
+    
+    if (userChoice) {
       window.open(facebookUrl, '_blank')
     } else {
+      // Open debug tool and provide instructions
       window.open(debugUrl, '_blank')
+      setTimeout(() => {
+        alert('🔧 Facebook URL Debugger opened!\n\n📋 Instructions:\n1. Click "Scrape Again" button\n2. Wait for it to update\n3. Close the debugger tab\n4. Try sharing again\n\nThis forces Facebook to refresh the cached content.')
+      }, 1000)
     }
     await markAsShared('facebook')
   }

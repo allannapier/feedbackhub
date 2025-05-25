@@ -20,16 +20,23 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
   
-  // Generate image URL for Open Graph
+  // Generate image URL for Open Graph with absolute URL
   const imageParams = new URLSearchParams({
     feedback,
     rating,
     name: customerName,
     business: businessName,
     download: 'true',
-    format: 'facebook'
+    format: 'facebook',
+    t: Date.now().toString() // Cache busting
   })
-  const imageUrl = `/api/testimonials?${imageParams.toString()}`
+  
+  // Use absolute URL for images
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
+  
+  const imageUrl = `${baseUrl}/api/testimonials?${imageParams.toString()}`
   
   return {
     title,
@@ -37,6 +44,8 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
     openGraph: {
       title,
       description,
+      url: `${baseUrl}/testimonial/${params.id}`,
+      siteName: 'FeedbackHub',
       images: [
         {
           url: imageUrl,
@@ -53,6 +62,13 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
       description,
       images: [imageUrl],
     },
+    // Add additional meta tags for better compatibility
+    other: {
+      'fb:app_id': '12345', // You can add your actual Facebook App ID here if you have one
+      'og:image:type': 'image/png',
+      'og:image:width': '1200',
+      'og:image:height': '630',
+    }
   }
 }
 
