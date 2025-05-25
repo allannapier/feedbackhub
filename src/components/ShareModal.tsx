@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { RatingDisplay } from '@/components/RatingDisplay'
 
 interface ShareModalProps {
   response: {
@@ -13,6 +14,7 @@ interface ShareModalProps {
   }
   form: {
     title: string
+    type: string
     user?: {
       name?: string
     }
@@ -103,9 +105,11 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <div className="flex items-center mb-2">
               {response.rating && (
-                <div className="flex text-yellow-400 text-xl">
-                  {'★'.repeat(response.rating)}{'☆'.repeat(5 - response.rating)}
-                </div>
+                <RatingDisplay 
+                  rating={response.rating} 
+                  formType={form.type}
+                  showLabel={true}
+                />
               )}
             </div>
             {response.text && (

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ShareModal } from '@/components/ShareModal'
+import { RatingDisplay } from '@/components/RatingDisplay'
 
 interface Response {
   id: string
@@ -51,10 +52,12 @@ export default function FormDetailClient({ form }: FormDetailClientProps) {
               <div className="flex-1">
                 {response.rating && (
                   <div className="flex items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">Rating: </span>
-                    <span className="ml-2 text-yellow-500">
-                      {'★'.repeat(response.rating)}{'☆'.repeat(5 - response.rating)}
-                    </span>
+                    <span className="text-sm font-medium text-gray-700 mr-2">Rating: </span>
+                    <RatingDisplay 
+                      rating={response.rating} 
+                      formType={form.type}
+                      showLabel={true}
+                    />
                   </div>
                 )}
                 {response.text && (

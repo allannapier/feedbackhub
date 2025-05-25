@@ -9,8 +9,9 @@ export async function GET(request: NextRequest) {
     const customerName = searchParams.get('name') || 'Anonymous'
     const businessName = searchParams.get('business') || 'Our Business'
     
-    // Generate star display
-    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating)
+    // Generate star display (only for star ratings, clamp to 1-5 range)
+    const clampedRating = Math.max(1, Math.min(5, rating))
+    const stars = '★'.repeat(clampedRating) + '☆'.repeat(5 - clampedRating)
     
     // Return HTML for preview (later we can implement proper image generation)
     const html = `
