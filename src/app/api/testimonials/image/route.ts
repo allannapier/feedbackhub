@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
               background: 'white',
               borderRadius: '24px',
               padding: '60px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               maxWidth: '1000px',
               textAlign: 'center',
               display: 'flex',
@@ -51,7 +50,8 @@ export async function GET(request: NextRequest) {
               }}
             >
               {businessName}
-            </div>            
+            </div>
+            
             <div
               style={{
                 fontSize: '100px',
