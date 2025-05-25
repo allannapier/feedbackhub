@@ -3,11 +3,5 @@
     "src/app/api/**": {
       "runtime": "nodejs20.x"
     }
-  },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ]
+  }
 }
