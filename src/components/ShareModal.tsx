@@ -40,8 +40,8 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
         business: form.user?.name || form.title,
       })
       
-      const imageUrl = `/api/testimonials/image?${params.toString()}`
-      setImageUrl(imageUrl)
+      const url = `/api/testimonials?${params.toString()}`
+      setImageUrl(url)
       
       // Generate default share text
       const defaultText = `🌟 We're thrilled to share this amazing feedback! ${response.text ? `"${response.text}"` : `${response.rating}/5 stars`} Thank you ${response.respondentName || 'to our customer'} for this review! #CustomerLove #Testimonial`
@@ -131,10 +131,10 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
               </button>
             ) : (
               <div className="space-y-4">
-                <img 
+                <iframe 
                   src={imageUrl} 
-                  alt="Testimonial Card"
-                  className="w-full rounded-lg shadow-lg border"
+                  className="w-full h-80 rounded-lg shadow-lg border"
+                  title="Testimonial Card Preview"
                 />
                 <div className="flex gap-2">
                   <button
