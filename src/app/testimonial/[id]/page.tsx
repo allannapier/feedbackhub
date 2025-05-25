@@ -24,6 +24,9 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const imageText = `${businessName}\n"${feedback}"\n${'★'.repeat(parseInt(rating))} - ${customerName}`
   const imageUrl = `https://via.placeholder.com/1200x630/667eea/ffffff?text=${encodeURIComponent(imageText)}`
   
+  // Base URL for the Open Graph URL
+  const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
+  
   return {
     title,
     description,
