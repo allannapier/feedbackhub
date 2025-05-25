@@ -2,6 +2,8 @@
 
 > Quick feedback collection & social sharing platform - Turn customer feedback into social proof with one click
 
+**Status: Development Phase - Authentication Testing**
+
 ## 🚀 Overview
 
 FeedbackHub is a simple, powerful tool that helps businesses:
