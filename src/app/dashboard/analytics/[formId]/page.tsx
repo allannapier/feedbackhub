@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
+import { RatingDisplay, AverageRatingDisplay } from '@/components/RatingDisplay'
 
 interface PageProps {
   params: {
@@ -101,17 +102,10 @@ export default async function FormAnalyticsPage({ params }: PageProps) {
             
             {averageRating && (
               <div className="bg-white rounded-lg shadow p-6">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-yellow-600">{averageRating}</p>
-                  <p className="text-sm text-gray-600 mt-1">Average Rating</p>
-                  <div className="flex justify-center mt-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span key={star} className={`text-sm ${star <= Math.round(parseFloat(averageRating)) ? 'text-yellow-400' : 'text-gray-300'}`}>
-                        ⭐
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <AverageRatingDisplay 
+                  averageRating={averageRating} 
+                  formType={form.type}
+                />
               </div>
             )}
             
@@ -169,16 +163,11 @@ export default async function FormAnalyticsPage({ params }: PageProps) {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           {response.rating && (
-                            <div className="flex items-center gap-2">
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <span key={i} className={`text-sm ${i < response.rating ? 'text-yellow-400' : 'text-gray-300'}`}>
-                                    ⭐
-                                  </span>
-                                ))}
-                              </div>
-                              <span className="text-sm text-gray-600">({response.rating}/5)</span>
-                            </div>
+                            <RatingDisplay 
+                              rating={response.rating} 
+                              formType={form.type}
+                              showLabel={true}
+                            />
                           )}
                           {response.text && (
                             <p className="text-sm text-gray-700 mt-1 line-clamp-2">{response.text}</p>

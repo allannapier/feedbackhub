@@ -33,6 +33,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get user details for company name
+    const { data: userProfile, error: userError } = await supabase
+      .from('User')
+      .select('companyName, name, email')
+      .eq('id', user.id)
+      .single()
+
     // Get form details
     const { data: form, error: formError } = await supabase
       .from('Form')
@@ -44,6 +51,9 @@ export async function POST(request: NextRequest) {
     if (formError || !form) {
       return NextResponse.json({ error: 'Form not found' }, { status: 404 })
     }
+
+    // Determine company name for email sender
+    const companyName = userProfile?.companyName || userProfile?.name || user.email?.split('@')[0] || 'FeedbackHub'
 
     const results = []
     const errors = []
@@ -73,7 +83,7 @@ export async function POST(request: NextRequest) {
         
         // Send real email via Resend
         const emailResult = await resend.emails.send({
-          from: 'Acme <onboarding@resend.dev>', // Using Resend's default onboarding domain
+          from: `${companyName} <onboarding@resend.dev>`, // Using company name
           to: [recipient.email],
           subject: `Quick feedback request: ${form.title}`,
           html: generateEmailHTML({
@@ -82,7 +92,7 @@ export async function POST(request: NextRequest) {
             formQuestion: form.question,
             feedbackUrl,
             customMessage,
-            businessName: user.email
+            businessName: companyName
           })
         })
 

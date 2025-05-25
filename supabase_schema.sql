@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     email TEXT UNIQUE NOT NULL,
     name TEXT,
+    "companyName" TEXT,
     "avatarUrl" TEXT,
     plan TEXT DEFAULT 'free' NOT NULL,
     "customerId" TEXT UNIQUE,
