@@ -43,6 +43,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Ensure user exists in our User table
+    const { data: existingUser, error: userCheckError } = await supabase
+      .from('User')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    if (!existingUser) {
+      // Create user in our User table
+      const { error: createUserError } = await supabase
+        .from('User')
+        .insert({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name || user.email?.split('@')[0]
+        })
+
+      if (createUserError) {
+        console.error('Error creating user:', createUserError)
+        return NextResponse.json({ error: 'Failed to create user profile' }, { status: 500 })
+      }
+    }
+
     const body = await request.json()
     const { title, question, type, settings } = body
 
