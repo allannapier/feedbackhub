@@ -283,8 +283,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       
       // Customer name
       ctx.fillStyle = '#6b7280'
-      ctx.font = '600 32px -apple-system, BlinkMacSystemFont, sans-serif'
-      ctx.fillText(`— ${response.respondentName || 'A satisfied customer'}  const markAsShared = async (platform: string) => {
+  const markAsShared = async (platform: string) => {
     const supabase = createClient()
     
     // Update response as shared
