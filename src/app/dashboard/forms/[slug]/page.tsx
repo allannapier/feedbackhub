@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { CopyButton } from '@/components/CopyButton'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
 import { DashboardLayout } from '@/components/DashboardLayout'
+import { QRCodeGenerator } from '@/components/QRCodeGenerator'
+import { EmbedWidget } from '@/components/EmbedWidget'
 import FormDetailClient from './FormDetailClient'
 import FormUrlDisplay from './FormUrlDisplay'
 import PublicFormLink from './PublicFormLink'
@@ -130,6 +132,10 @@ export default async function FormDetailPage({
               </div>
 
               <ActionsSidebar form={form} />
+              
+              <QRCodeGenerator formSlug={form.slug} />
+              
+              <EmbedWidget formSlug={form.slug} />
             </div>
           </div>
         </div>
