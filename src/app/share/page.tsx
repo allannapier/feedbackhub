@@ -23,11 +23,9 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
     feedback,
     rating,
     name: customerName,
-    business: businessName,
-    download: 'true',
-    format: 'facebook'
+    business: businessName
   })
-  const imageUrl = `/api/testimonials?${imageParams.toString()}`
+  const imageUrl = `/api/og-image?${imageParams.toString()}`
   
   return {
     title,

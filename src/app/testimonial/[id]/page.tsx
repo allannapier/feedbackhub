@@ -20,18 +20,17 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
   
-  // Generate image URL for Open Graph - use regular format, not download
+  // Generate image URL for Open Graph - use dedicated OG endpoint
   const imageParams = new URLSearchParams({
     feedback,
     rating,
     name: customerName,
-    business: businessName,
-    format: 'facebook'
+    business: businessName
   })
   
   // Use absolute URL for images
   const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
-  const imageUrl = `${baseUrl}/api/testimonials?${imageParams.toString()}`
+  const imageUrl = `${baseUrl}/api/og-image?${imageParams.toString()}`
   
   return {
     title,
