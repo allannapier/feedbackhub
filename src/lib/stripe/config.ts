@@ -6,7 +6,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 })
 
 export const STRIPE_CONFIG = {
-  currency: 'usd',
+  currency: 'gbp',
   plans: {
     free: {
       name: 'Free',
@@ -20,7 +20,7 @@ export const STRIPE_CONFIG = {
     },
     pro: {
       name: 'Pro',
-      price: 2900, // $29.00 in cents
+      price: 299, // £2.99 in pence
       priceId: process.env.STRIPE_PRO_PRICE_ID || process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
       limits: {
         feedbackRequests: -1, // unlimited

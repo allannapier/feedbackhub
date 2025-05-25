@@ -180,7 +180,7 @@ export function BillingPage({ user, email }: BillingPageProps) {
           {/* Free Plan */}
           <div className={`border rounded-lg p-6 ${user?.plan === 'free' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}`}>
             <h3 className="text-lg font-semibold mb-2">Free Plan</h3>
-            <div className="text-3xl font-bold mb-4">$0<span className="text-lg font-normal text-gray-600">/month</span></div>
+            <div className="text-3xl font-bold mb-4">£0<span className="text-lg font-normal text-gray-600">/month</span></div>
             <ul className="space-y-2 mb-6">
               <li className="flex items-center">
                 <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -211,7 +211,7 @@ export function BillingPage({ user, email }: BillingPageProps) {
           {/* Pro Plan */}
           <div className={`border rounded-lg p-6 ${user?.plan === 'pro' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}`}>
             <h3 className="text-lg font-semibold mb-2">Pro Plan</h3>
-            <div className="text-3xl font-bold mb-4">$29<span className="text-lg font-normal text-gray-600">/month</span></div>
+            <div className="text-3xl font-bold mb-4">£2.99<span className="text-lg font-normal text-gray-600">/month</span></div>
             <ul className="space-y-2 mb-6">
               <li className="flex items-center">
                 <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
