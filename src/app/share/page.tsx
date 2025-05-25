@@ -18,14 +18,9 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
   
-  // Generate image URL for Open Graph
-  const imageParams = new URLSearchParams({
-    feedback,
-    rating,
-    name: customerName,
-    business: businessName
-  })
-  const imageUrl = `/api/og-image?${imageParams.toString()}`
+  // TEMPORARY: Use a reliable external service for Open Graph images
+  const imageText = `${businessName}\n"${feedback}"\n${'★'.repeat(parseInt(rating))} - ${customerName}`
+  const imageUrl = `https://via.placeholder.com/1200x630/667eea/ffffff?text=${encodeURIComponent(imageText)}`
   
   return {
     title,
