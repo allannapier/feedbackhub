@@ -135,9 +135,18 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
-    const text = encodeURIComponent(shareText)
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${text}`
-    window.open(url, '_blank')
+    // Create a shareable URL with proper Open Graph meta tags
+    const shareParams = new URLSearchParams({
+      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+      rating: response.rating?.toString() || '5',
+      name: response.respondentName || 'A satisfied customer',
+      business: form.user?.name || form.title,
+    })
+    
+    const shareUrl = `${window.location.origin}/share?${shareParams.toString()}`
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
+    
+    window.open(facebookUrl, '_blank')
     await markAsShared('facebook')
   }
 
