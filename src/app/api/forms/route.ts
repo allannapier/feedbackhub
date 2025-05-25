@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { nanoid } from 'nanoid'
+import { generateSlug } from '@/lib/utils'
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,10 +13,10 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: forms, error } = await supabase
-      .from('Form')
+      .from('forms')
       .select(`
         *,
-        responses:Response(count)
+        responses:responses(count)
       `)
       .eq('userId', user.id)
       .order('createdAt', { ascending: false })
@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate unique slug
-    const slug = nanoid(10)
+    const slug = generateSlug(10)
 
     const { data: form, error } = await supabase
-      .from('Form')
+      .from('forms')
       .insert({
         userId: user.id,
         title,

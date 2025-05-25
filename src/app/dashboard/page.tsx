@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   // Fetch user's forms
   const { data: forms, error } = await supabase
-    .from('Form')
+    .from('forms')
     .select('*')
     .eq('userId', user.id)
     .order('createdAt', { ascending: false })

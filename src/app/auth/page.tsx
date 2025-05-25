@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function AuthPage() {
@@ -10,8 +11,27 @@ export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [isResetMode, setIsResetMode] = useState(false)
   const [message, setMessage] = useState('')
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
   const supabase = createClient()
+
+  useEffect(() => {
+    // Check for error messages from URL params
+    const errorMessage = searchParams.get('message')
+    if (errorMessage) {
+      setMessage(errorMessage)
+    }
+
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        router.push('/dashboard')
+      }
+    }
+    checkUser()
+  }, [searchParams, supabase.auth, router])
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,7 +41,7 @@ export default function AuthPage() {
     try {
       if (isResetMode) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/reset-password`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         })
         if (error) throw error
         setMessage('Check your email for password reset link!')
@@ -29,6 +49,9 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
         })
         if (error) throw error
         setMessage('Check your email for verification link!')
@@ -38,7 +61,7 @@ export default function AuthPage() {
           password,
         })
         if (error) throw error
-        window.location.href = '/dashboard'
+        router.push('/dashboard')
       }
     } catch (error: any) {
       setMessage(error.message)

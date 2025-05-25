@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     // Verify form exists and is active
     const { data: form, error: formError } = await supabase
-      .from('Form')
+      .from('forms')
       .select('id, isActive')
       .eq('id', formId)
       .single()
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Create response
     const { data: response, error } = await supabase
-      .from('Response')
+      .from('responses')
       .insert({
         formId,
         rating,

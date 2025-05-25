@@ -14,20 +14,20 @@ export default async function AnalyticsPage() {
 
   // Fetch user's forms with response counts
   const { data: forms, error: formsError } = await supabase
-    .from('Form')
+    .from('forms')
     .select(`
       *,
-      responses:Response(count)
+      responses:responses(count)
     `)
     .eq('userId', user.id)
     .order('createdAt', { ascending: false })
 
   // Fetch recent responses across all forms
   const { data: recentResponses, error: responsesError } = await supabase
-    .from('Response')
+    .from('responses')
     .select(`
       *,
-      form:Form!inner(title, userId)
+      form:forms!inner(title, userId)
     `)
     .eq('form.userId', user.id)
     .order('createdAt', { ascending: false })

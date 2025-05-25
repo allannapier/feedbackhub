@@ -30,7 +30,7 @@ export default function RequestsPage() {
     
     if (user) {
       const { data } = await supabase
-        .from('Form')
+        .from('forms')
         .select('id, title, question, slug')
         .eq('userId', user.id)
         .eq('isActive', true)
