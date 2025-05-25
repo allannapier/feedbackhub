@@ -58,45 +58,6 @@ export function calculateUserUsage(
     month: getCurrentMonth(),
     feedbackRequests: 0,
     socialShares: 0,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-
-  const canCreateFeedbackRequest = limits.feedbackRequests === -1 || 
-    currentUsage.feedbackRequests < limits.feedbackRequests
-
-  const canShareSocial = limits.socialShares === -1 || 
-    currentUsage.socialShares < limits.socialShares
-
-  const remainingFeedbackRequests = limits.feedbackRequests === -1 
-    ? -1 
-    : Math.max(0, limits.feedbackRequests - currentUsage.feedbackRequests)
-
-  const remainingSocialShares = limits.socialShares === -1 
-    ? -1 
-    : Math.max(0, limits.socialShares - currentUsage.socialShares)
-
-  return {
-    currentMonth: currentUsage,
-    limits,
-    canCreateFeedbackRequest,
-    canShareSocial,
-    remainingFeedbackRequests,
-    remainingSocialShares
-  }
-}
-
-export function calculateUserUsage(
-  plan: string,
-  currentMonthRecord: UsageRecord | null
-): UserUsage {
-  const limits = getPlanLimits(plan)
-  const currentUsage = currentMonthRecord || {
-    id: '',
-    userId: '',
-    month: getCurrentMonth(),
-    feedbackRequests: 0,
-    socialShares: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
