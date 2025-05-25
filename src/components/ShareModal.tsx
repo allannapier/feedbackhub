@@ -135,6 +135,13 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
+    // Copy share text to clipboard first
+    try {
+      await navigator.clipboard.writeText(shareText)
+    } catch (error) {
+      console.log('Could not copy to clipboard:', error)
+    }
+
     // Create a shareable URL with proper Open Graph meta tags
     const shareParams = new URLSearchParams({
       feedback: response.text || `Rated us ${response.rating}/5 stars`,
@@ -145,6 +152,9 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     
     const shareUrl = `${window.location.origin}/share?${shareParams.toString()}`
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
+    
+    // Show helpful message
+    alert('📘 Opening Facebook...\n\n💬 Your share text has been copied to your clipboard!\n📝 Paste it in the Facebook post when the dialog opens.')
     
     window.open(facebookUrl, '_blank')
     await markAsShared('facebook')
