@@ -63,10 +63,10 @@ export default function AuthPage() {
         <div className="lg:w-1/2">
           <div className="text-center lg:text-left mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Choose your plan
+              Start with our free plan
             </h1>
             <p className="text-xl text-gray-600">
-              Start free and upgrade when you need more power
+              Create your account and explore FeedbackHub risk-free. You can upgrade to unlock more features anytime in your settings.
             </p>
           </div>
 
@@ -151,7 +151,7 @@ export default function AuthPage() {
 
           <div className="mt-8 text-center lg:text-left">
             <p className="text-sm text-gray-500">
-              ✨ Start with our free plan and upgrade anytime. No long-term commitments.
+              ✨ Everyone starts free! Upgrade to Professional in your account settings when you're ready for unlimited features.
             </p>
           </div>
         </div>
@@ -162,10 +162,10 @@ export default function AuthPage() {
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {isSignUp ? 'Create your account' : 'Welcome back'}
+                  {isSignUp ? 'Get started free' : 'Welcome back'}
                 </h2>
                 <p className="mt-2 text-sm text-gray-600">
-                  {isSignUp ? 'Start your feedback journey today' : 'Sign in to your account'}
+                  {isSignUp ? 'Join thousands using FeedbackHub to build trust' : 'Sign in to your account'}
                 </p>
               </div>
 
