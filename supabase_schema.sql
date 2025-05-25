@@ -92,6 +92,9 @@ ALTER TABLE "ShareTemplate" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own data" ON "User"
     FOR SELECT USING (auth.uid()::text = id);
 
+CREATE POLICY "Users can insert own data" ON "User"
+    FOR INSERT WITH CHECK (auth.uid()::text = id);
+
 CREATE POLICY "Users can update own data" ON "User"
     FOR UPDATE USING (auth.uid()::text = id);
 
