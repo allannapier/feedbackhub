@@ -1,3 +1,4 @@
+import Link from 'next/link';
 // src/app/dashboard/help/page.tsx
 export default function HelpPage() {
   return (
