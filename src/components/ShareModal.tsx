@@ -142,7 +142,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       console.log('Could not copy to clipboard:', error)
     }
 
-    // Create a shareable URL with proper Open Graph meta tags
+    // Create a shareable URL with unique ID for better caching
     const shareParams = new URLSearchParams({
       feedback: response.text || `Rated us ${response.rating}/5 stars`,
       rating: response.rating?.toString() || '5',
@@ -150,13 +150,21 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       business: form.user?.name || form.title,
     })
     
-    const shareUrl = `${window.location.origin}/share?${shareParams.toString()}`
+    // Use testimonial ID for unique URL that Facebook won't cache incorrectly
+    const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     
-    // Show helpful message
-    alert('📘 Opening Facebook...\n\n💬 Your share text has been copied to your clipboard!\n📝 Paste it in the Facebook post when the dialog opens.')
+    console.log('Sharing URL:', shareUrl) // Debug log
     
-    window.open(facebookUrl, '_blank')
+    // Show helpful message with debug option
+    const debugUrl = `https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(shareUrl)}`
+    const message = `📘 Opening Facebook...\n\n💬 Your share text has been copied to your clipboard!\n📝 Paste it in the Facebook post when the dialog opens.\n\n🔧 If you see old/wrong content, click "Debug URL" to refresh Facebook's cache.`
+    
+    if (confirm(message + '\n\nClick OK to share, or Cancel to debug the URL first.')) {
+      window.open(facebookUrl, '_blank')
+    } else {
+      window.open(debugUrl, '_blank')
+    }
     await markAsShared('facebook')
   }
 
