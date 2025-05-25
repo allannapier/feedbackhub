@@ -50,23 +50,36 @@ export function BillingPage({ user, email }: BillingPageProps) {
   const handleUpgrade = async () => {
     setLoading(true)
     try {
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID
+      
+      if (!priceId) {
+        alert('Stripe configuration error: Price ID not found. Please contact support.')
+        setLoading(false)
+        return
+      }
+
+      console.log('Attempting to create checkout session with price ID:', priceId)
+
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID
+          priceId: priceId
         })
       })
 
+      const data = await response.json()
+      console.log('Checkout response:', data)
+
       if (response.ok) {
-        const { sessionId } = await response.json()
+        const { sessionId } = data
         const stripe = await stripePromise
         await stripe?.redirectToCheckout({ sessionId })
       } else {
-        const error = await response.json()
-        alert(`Error: ${error.error}`)
+        console.error('Checkout error:', data)
+        alert(`Error: ${data.error || 'Failed to create checkout session'}`)
       }
     } catch (error) {
       console.error('Error starting checkout:', error)
