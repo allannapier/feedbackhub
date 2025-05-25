@@ -1,28 +1,21 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-function AuthForm() {
+export default function AuthPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
   const [isResetMode, setIsResetMode] = useState(false)
   const [message, setMessage] = useState('')
-  const searchParams = useSearchParams()
   const router = useRouter()
 
   const supabase = createClient()
 
   useEffect(() => {
-    // Check for error messages from URL params
-    const errorMessage = searchParams.get('message')
-    if (errorMessage) {
-      setMessage(errorMessage)
-    }
-
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -31,7 +24,7 @@ function AuthForm() {
       }
     }
     checkUser()
-  }, [searchParams, supabase.auth, router])
+  }, [supabase.auth, router])
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -160,20 +153,5 @@ function AuthForm() {
         </form>
       </div>
     </div>
-  )
-}
-
-export default function AuthPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    }>
-      <AuthForm />
-    </Suspense>
   )
 }
