@@ -16,6 +16,7 @@ interface ActionsSidebarProps {
 
 export function ActionsSidebar({ form }: ActionsSidebarProps) {
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isExporting, setIsExporting] = useState(false); // New state for export
 
   const positiveResponses = form.responses?.filter(r => 
     (r.rating && r.rating >= 4) || r.answer === 'yes'
@@ -27,6 +28,20 @@ export function ActionsSidebar({ form }: ActionsSidebarProps) {
     alert(`Found ${positiveResponses.length} positive responses ready for social sharing!`)
     setIsGenerating(false)
   }
+
+  const handleExportResponses = async () => {
+    setIsExporting(true);
+    // Construct the URL for the export endpoint
+    const exportUrl = `/api/forms/${form.id}/export`;
+    
+    // Use window.location.href to trigger the download
+    window.location.href = exportUrl;
+
+    // Re-enable the button after a short delay
+    setTimeout(() => {
+      setIsExporting(false);
+    }, 2000); // Adjust delay as needed
+  };
 
   return (
     <div className="space-y-6">
@@ -47,10 +62,11 @@ export function ActionsSidebar({ form }: ActionsSidebarProps) {
             {isGenerating ? 'Generating...' : `Generate Social Cards (${positiveResponses.length})`}
           </button>
           <button 
-            className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-            onClick={() => alert('Export feature coming soon!')}
+            className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+            onClick={handleExportResponses} // Updated handler
+            disabled={isExporting} // Disable button when exporting
           >
-            Export Responses
+            {isExporting ? 'Exporting...' : 'Export Responses'} {/* Update text based on state */}
           </button>
         </div>
       </div>
