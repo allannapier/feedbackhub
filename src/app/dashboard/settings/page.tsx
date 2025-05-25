@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { DashboardLayout } from '@/components/DashboardLayout'
+import Link from 'next/link'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -11,6 +12,13 @@ export default async function SettingsPage() {
     redirect('/auth')
   }
 
+  // Get user's billing information
+  const { data: userRecord } = await supabase
+    .from('User')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
   const emailDomain = process.env.EMAIL_FROM_DOMAIN || 'resend.dev'
   const isEmailConfigured = emailDomain !== 'resend.dev'
 
@@ -20,6 +28,34 @@ export default async function SettingsPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
           <p className="mt-2 text-gray-600">Configure your FeedbackHub account</p>
+        </div>
+        
+        {/* Subscription Information */}
+        <div className="bg-white rounded-lg shadow mb-6">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Subscription</h2>
+          </div>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-medium text-gray-900 capitalize">
+                  {userRecord?.plan || 'Free'} Plan
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {userRecord?.plan === 'pro' 
+                    ? 'Unlimited feedback requests and social shares' 
+                    : 'Limited to 5 feedback requests and 5 social shares per month'
+                  }
+                </p>
+              </div>
+              <Link
+                href="/dashboard/billing"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                {userRecord?.plan === 'pro' ? 'Manage Billing' : 'Upgrade to Pro'}
+              </Link>
+            </div>
+          </div>
         </div>
         
         {/* Email Configuration */}
