@@ -124,7 +124,167 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     await markAsShared('linkedin')
   }
 
-  const markAsShared = async (platform: string) => {
+  const shareToFacebook = async () => {
+    if (!usage?.limits.platforms.includes('facebook')) {
+      alert('Facebook sharing is not available on your current plan.')
+      return
+    }
+
+    if (!usage?.canShareSocial) {
+      alert(`Monthly social share limit reached (${usage?.limits.socialShares}). Please upgrade to Pro for unlimited shares.`)
+      return
+    }
+
+    const text = encodeURIComponent(shareText)
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${text}`
+    window.open(url, '_blank')
+    await markAsShared('facebook')
+  }
+
+  const shareToInstagram = async () => {
+    if (!usage?.limits.platforms.includes('instagram')) {
+      alert('Instagram sharing is only available on Pro plan. Please upgrade to access all platforms.')
+      return
+    }
+
+    if (!usage?.canShareSocial) {
+      alert(`Monthly social share limit reached (${usage?.limits.socialShares}). Please upgrade to Pro for unlimited shares.`)
+      return
+    }
+
+    // Download Instagram-optimized image
+    await downloadInstagramImage()
+    await markAsShared('instagram')
+  }
+
+  const downloadInstagramImage = async () => {
+    try {
+      const params = new URLSearchParams({
+        feedback: response.text || `Rated us ${response.rating}/5 stars`,
+        rating: response.rating?.toString() || '5',
+        name: response.respondentName || 'A satisfied customer',
+        business: form.user?.name || form.title,
+        format: 'instagram',
+        download: 'true'
+      })
+      
+      const url = `/api/testimonials?${params.toString()}`
+      
+      // Create a temporary link to download the image
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `testimonial-instagram-${response.id}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      
+      // Show instructions and copy caption
+      alert('✅ Instagram image downloaded!\n\n📱 To share on Instagram:\n1. Open Instagram app\n2. Create new post\n3. Select the downloaded image\n4. Use the caption text below\n\n💬 Caption text has been copied to your clipboard!')
+      
+      // Copy caption to clipboard
+      navigator.clipboard.writeText(shareText).catch(() => {
+        console.log('Caption text:', shareText)
+      })
+      
+    } catch (error) {
+      console.error('Error downloading Instagram image:', error)
+      alert('Error downloading image. Please try again.')
+    }
+  }
+
+  const downloadImageForInstagram = async () => {
+    try {
+      // Create a canvas to capture the testimonial card
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      
+      // Set Instagram optimal dimensions (1080x1080 for square posts)
+      canvas.width = 1080
+      canvas.height = 1080
+      
+      if (!ctx) return
+      
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
+      gradient.addColorStop(0, '#667eea')
+      gradient.addColorStop(1, '#764ba2')
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      
+      // Draw white card background with rounded corners
+      const cardPadding = 80
+      const cardRadius = 40
+      const cardX = cardPadding
+      const cardY = cardPadding
+      const cardWidth = canvas.width - cardPadding * 2
+      const cardHeight = canvas.height - cardPadding * 2
+      
+      ctx.fillStyle = 'white'
+      ctx.beginPath()
+      ctx.moveTo(cardX + cardRadius, cardY)
+      ctx.lineTo(cardX + cardWidth - cardRadius, cardY)
+      ctx.quadraticCurveTo(cardX + cardWidth, cardY, cardX + cardWidth, cardY + cardRadius)
+      ctx.lineTo(cardX + cardWidth, cardY + cardHeight - cardRadius)
+      ctx.quadraticCurveTo(cardX + cardWidth, cardY + cardHeight, cardX + cardWidth - cardRadius, cardY + cardHeight)
+      ctx.lineTo(cardX + cardRadius, cardY + cardHeight)
+      ctx.quadraticCurveTo(cardX, cardY + cardHeight, cardX, cardY + cardHeight - cardRadius)
+      ctx.lineTo(cardX, cardY + cardRadius)
+      ctx.quadraticCurveTo(cardX, cardY, cardX + cardRadius, cardY)
+      ctx.closePath()
+      ctx.fill()
+      
+      // Text styling
+      ctx.fillStyle = '#1f2937'
+      ctx.textAlign = 'center'
+      
+      let yPosition = 200
+      
+      // Business name
+      ctx.font = 'bold 48px -apple-system, BlinkMacSystemFont, sans-serif'
+      ctx.fillText(form.user?.name || form.title, canvas.width / 2, yPosition)
+      yPosition += 80
+      
+      // Quote mark
+      ctx.fillStyle = '#4f46e5'
+      ctx.font = '120px Georgia, serif'
+      ctx.fillText('"', canvas.width / 2, yPosition)
+      yPosition += 80
+      
+      // Feedback text (wrap text if too long)
+      ctx.fillStyle = '#374151'
+      ctx.font = 'italic 36px -apple-system, BlinkMacSystemFont, sans-serif'
+      const maxWidth = canvas.width - 200
+      const feedbackText = response.text || `Rated us ${response.rating}/5 stars`
+      const words = feedbackText.split(' ')
+      let line = ''
+      
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' '
+        const metrics = ctx.measureText(testLine)
+        if (metrics.width > maxWidth && i > 0) {
+          ctx.fillText(line, canvas.width / 2, yPosition)
+          line = words[i] + ' '
+          yPosition += 50
+        } else {
+          line = testLine
+        }
+      }
+      ctx.fillText(line, canvas.width / 2, yPosition)
+      yPosition += 80
+      
+      // Stars
+      if (response.rating) {
+        ctx.fillStyle = '#fbbf24'
+        ctx.font = '60px -apple-system, BlinkMacSystemFont, sans-serif'
+        const stars = '★'.repeat(response.rating) + '☆'.repeat(5 - response.rating)
+        ctx.fillText(stars, canvas.width / 2, yPosition)
+        yPosition += 80
+      }
+      
+      // Customer name
+      ctx.fillStyle = '#6b7280'
+      ctx.font = '600 32px -apple-system, BlinkMacSystemFont, sans-serif'
+      ctx.fillText(`— ${response.respondentName || 'A satisfied customer'}  const markAsShared = async (platform: string) => {
     const supabase = createClient()
     
     // Update response as shared
@@ -295,6 +455,29 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
                   </svg>
                   LinkedIn
                   {!usage?.limits.platforms.includes('linkedin') && (
+                    <span className="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded">Pro</span>
+                  )}
+                </button>
+                <button
+                  onClick={shareToFacebook}
+                  disabled={!usage?.canShareSocial || !usage?.limits.platforms.includes('facebook')}
+                  className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  Facebook
+                </button>
+                <button
+                  onClick={shareToInstagram}
+                  disabled={!usage?.canShareSocial || !usage?.limits.platforms.includes('instagram')}
+                  className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                  Instagram
+                  {!usage?.limits.platforms.includes('instagram') && (
                     <span className="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded">Pro</span>
                   )}
                 </button>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ImageResponse } from 'next/og'
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,12 +9,131 @@ export async function GET(request: NextRequest) {
     const rating = parseInt(searchParams.get('rating') || '5')
     const customerName = searchParams.get('name') || 'Anonymous'
     const businessName = searchParams.get('business') || 'Our Business'
+    const format = searchParams.get('format') || 'web' // web, instagram, facebook
     
     // Generate star display (only for star ratings, clamp to 1-5 range)
     const clampedRating = Math.max(1, Math.min(5, rating))
     const stars = '★'.repeat(clampedRating) + '☆'.repeat(5 - clampedRating)
     
-    // Return HTML for preview (later we can implement proper image generation)
+    // Set dimensions based on format
+    let width = 800
+    let height = 600
+    
+    if (format === 'instagram') {
+      width = 1080
+      height = 1080
+    } else if (format === 'facebook') {
+      width = 1200
+      height = 630
+    }
+    
+    // If this is a request for an actual image (for downloads), return ImageResponse
+    if (searchParams.get('download') === 'true') {
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'white',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              padding: '80px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'white',
+                borderRadius: '24px',
+                padding: format === 'instagram' ? '60px' : '48px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                maxWidth: '90%',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '36px' : '32px',
+                  fontWeight: 'bold',
+                  color: '#1f2937',
+                  marginBottom: '24px',
+                }}
+              >
+                {businessName}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '80px' : '72px',
+                  color: '#4f46e5',
+                  marginBottom: '24px',
+                  lineHeight: 1,
+                }}
+              >
+                "
+              </div>
+              
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '32px' : '28px',
+                  color: '#374151',
+                  lineHeight: 1.4,
+                  marginBottom: '32px',
+                  fontStyle: 'italic',
+                  maxWidth: '80%',
+                }}
+              >
+                {feedback}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '40px' : '36px',
+                  marginBottom: '24px',
+                  color: '#fbbf24',
+                }}
+              >
+                {stars}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '28px' : '24px',
+                  color: '#6b7280',
+                  fontWeight: 600,
+                  marginBottom: '16px',
+                }}
+              >
+                — {customerName}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '18px' : '16px',
+                  color: '#9ca3af',
+                }}
+              >
+                Powered by FeedbackHub
+              </div>
+            </div>
+          </div>
+        ),
+        {
+          width,
+          height,
+        }
+      )
+    }
+    
+    // Return HTML for preview (existing functionality)
     const html = `
       <!DOCTYPE html>
       <html>
@@ -73,6 +193,25 @@ export async function GET(request: NextRequest) {
               font-size: 16px;
               color: #9ca3af;
             }
+            .download-actions {
+              margin-top: 32px;
+              display: flex;
+              gap: 16px;
+              justify-content: center;
+              flex-wrap: wrap;
+            }
+            .download-btn {
+              background: #4f46e5;
+              color: white;
+              padding: 12px 24px;
+              border-radius: 8px;
+              text-decoration: none;
+              font-weight: 600;
+              transition: background 0.2s;
+            }
+            .download-btn:hover {
+              background: #4338ca;
+            }
           </style>
         </head>
         <body>
@@ -83,6 +222,24 @@ export async function GET(request: NextRequest) {
             <div class="stars">${stars}</div>
             <div class="customer-name">— ${customerName}</div>
             <div class="powered-by">Powered by FeedbackHub</div>
+            
+            <div class="download-actions">
+              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=instagram" 
+                 class="download-btn" 
+                 download="testimonial-instagram.png">
+                📱 Download for Instagram
+              </a>
+              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=facebook" 
+                 class="download-btn" 
+                 download="testimonial-facebook.png">
+                📘 Download for Facebook
+              </a>
+              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=web" 
+                 class="download-btn" 
+                 download="testimonial-web.png">
+                🌐 Download Web Version
+              </a>
+            </div>
           </div>
         </body>
       </html>
