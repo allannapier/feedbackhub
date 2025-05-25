@@ -13,10 +13,10 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: forms, error } = await supabase
-      .from('forms')
+      .from('Form')
       .select(`
         *,
-        responses:responses(count)
+        responses:Response(count)
       `)
       .eq('userId', user.id)
       .order('createdAt', { ascending: false })
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const slug = generateSlug(10)
 
     const { data: form, error } = await supabase
-      .from('forms')
+      .from('Form')
       .insert({
         userId: user.id,
         title,

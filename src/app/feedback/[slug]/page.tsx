@@ -12,7 +12,7 @@ export default async function FeedbackPage({ params }: FeedbackPageProps) {
   const supabase = await createClient()
   
   const { data: form, error } = await supabase
-    .from('forms')
+    .from('Form')
     .select('*')
     .eq('slug', params.slug)
     .eq('isActive', true)
