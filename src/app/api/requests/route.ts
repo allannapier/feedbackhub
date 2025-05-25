@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
+import { getFormUrl } from '@/lib/url-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,8 +68,8 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Generate feedback link
-        const feedbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/forms/${form.slug}`
+        // Generate feedback link dynamically based on request
+        const feedbackUrl = getFormUrl(form.slug, request)
         
         // Send real email via Resend
         const emailResult = await resend.emails.send({

@@ -5,6 +5,8 @@ import { CopyButton } from '@/components/CopyButton'
 import { ActionsSidebar } from '@/components/ActionsSidebar'
 import { DashboardLayout } from '@/components/DashboardLayout'
 import FormDetailClient from './FormDetailClient'
+import FormUrlDisplay from './FormUrlDisplay'
+import PublicFormLink from './PublicFormLink'
 
 export default async function FormDetailPage({ 
   params 
@@ -43,8 +45,6 @@ export default async function FormDetailPage({
     redirect('/dashboard')
   }
 
-  const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL}/forms/${form.slug}`
-
   return (
     <DashboardLayout user={{ email: user.email || '', name: user.user_metadata?.name || user.email }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,13 +57,7 @@ export default async function FormDetailPage({
             <p className="text-gray-600 mt-1">Form details and analytics</p>
           </div>
           <div className="flex gap-3">
-            <Link
-              href={publicUrl}
-              target="_blank"
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              View Public Form
-            </Link>
+            <PublicFormLink slug={form.slug} />
             <Link
               href={`/dashboard/forms/${form.slug}/edit`}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
@@ -72,6 +66,9 @@ export default async function FormDetailPage({
             </Link>
           </div>
         </div>
+        
+        {/* Form URL Display */}
+        <FormUrlDisplay slug={form.slug} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Form Overview */}
@@ -88,18 +85,6 @@ export default async function FormDetailPage({
                     <span className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                       {form.type}
                     </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Public URL</label>
-                    <div className="mt-1 flex">
-                      <input
-                        type="text"
-                        value={publicUrl}
-                        readOnly
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
-                      />
-                      <CopyButton text={publicUrl} />
-                    </div>
                   </div>
                 </div>
               </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useFormUrl } from '@/hooks/useBaseUrl'
 import { DashboardLayout } from '@/components/DashboardLayout'
 
 interface Form {
@@ -19,6 +20,9 @@ export default function RequestsPage() {
   const [customMessage, setCustomMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
+  
+  // Dynamic URL generation
+  const formUrl = useFormUrl(selectedForm?.slug || '')
 
   useEffect(() => {
     fetchForms()
@@ -220,7 +224,7 @@ support@company.com"
                   <h3 className="font-medium text-gray-900 mb-2">Email Preview</h3>
                   <div className="text-sm text-gray-600">
                     <p><strong>Subject:</strong> Quick feedback request: {selectedForm.title}</p>
-                    <p><strong>Form Link:</strong> {process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/forms/{selectedForm.slug}</p>
+                    <p><strong>Form Link:</strong> {formUrl}</p>
                   </div>
                 </div>
               )}
