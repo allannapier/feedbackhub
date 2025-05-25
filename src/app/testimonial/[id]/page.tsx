@@ -20,10 +20,6 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
   
-  // Use a working external image service with better encoding
-  const title = `${businessName} - ${rating}/5 Stars`
-  const description = `"${feedback}" - ${customerName}`
-  
   // Use Vercel's OG image service as a reliable fallback
   const imageUrl = `https://og-image.vercel.app/${encodeURIComponent(title)}?theme=light&md=1&fontSize=100px&images=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Ffront%2Fassets%2Fdesign%2Fvercel-triangle-black.svg`
   
