@@ -1,4 +1,3 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --no-audit --no-fund --prefer-offline"
+  "installCommand": "npm install --no-optional --no-shrinkwrap"
 }
