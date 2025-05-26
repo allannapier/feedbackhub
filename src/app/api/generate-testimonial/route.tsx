@@ -10,6 +10,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 export async function POST(request: NextRequest) {
   try {
+    // Debug timestamp to ensure fresh deployment
+    console.log('Image generation started at:', new Date().toISOString())
+    
     const body = await request.json()
     const { 
       feedback = 'Great service!', 
