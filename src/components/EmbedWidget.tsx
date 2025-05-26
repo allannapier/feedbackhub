@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { CopyButton } from '@/components/CopyButton'
+import { getFormUrl } from '@/lib/url-utils'
 
 interface EmbedWidgetProps {
   formSlug: string
@@ -12,7 +13,7 @@ export function EmbedWidget({ formSlug }: EmbedWidgetProps) {
   const [width, setWidth] = useState('100%')
   const [height, setHeight] = useState('600')
   
-  const formUrl = `${process.env.NEXT_PUBLIC_APP_URL}/forms/${formSlug}`
+  const formUrl = getFormUrl(formSlug)
   
   const generateEmbedCode = () => {
     switch (embedType) {
