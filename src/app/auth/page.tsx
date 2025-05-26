@@ -137,19 +137,19 @@ export default function AuthPage() {
                   <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <strong>Unlimited</strong> Feedback requests per month
+                  Unlimited Feedback requests per month
                 </li>
                 <li className="flex items-center">
                   <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <strong>Unlimited</strong> Social Media shares per month
+                  Unlimited Social Media shares per month
                 </li>
                 <li className="flex items-center">
                   <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Share to Facebook, LinkedIn, X, <strong>Instagram</strong>
+                  Share to Facebook, LinkedIn, X, Instagram
                 </li>
                 <li className="flex items-center">
                   <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
