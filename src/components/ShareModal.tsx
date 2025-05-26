@@ -356,6 +356,55 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
             <p className="text-sm text-gray-600">— {response.respondentName || 'Anonymous'}</p>
           </div>
 
+          {/* Generate Card Section */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-4">Testimonial Card</h3>
+            {!imageUrl ? (
+              <button
+                onClick={generateCard}
+                disabled={isGenerating}
+                className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {isGenerating ? 'Generating...' : 'Generate Testimonial Card'}
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <iframe 
+                  src={imageUrl} 
+                  className="w-full h-80 rounded-lg shadow-lg border"
+                  title="Testimonial Card Preview"
+                />
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => window.open(imageUrl, '_blank')}
+                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                  >
+                    Open Full Size
+                  </button>
+                  <button
+                    onClick={() => setImageUrl('')}
+                    className="px-4 py-2 text-indigo-600 hover:text-indigo-800"
+                  >
+                    Generate New
+                  </button>
+                </div>
+                
+                {/* Format-specific download buttons */}
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  <a
+                    href={`/api/testimonials?${new URLSearchParams({
+                      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+                      rating: response.rating?.toString() || '5',
+                      name: response.respondentName || 'A satisfied customer',
+                      business: form.user?.name || form.title,
+                      format: 'facebook',
+                      download: 'true'
+                    }).toString()}`}
+                    download="testimonial-facebook.png"
+                    className="text-center px-3 py-2 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                  >
+                    📘 Facebook
+                  </a>
                   <a
                     href={`/api/testimonials?${new URLSearchParams({
                       feedback: response.text || `Rated us ${response.rating}/5 stars`,
@@ -380,7 +429,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
                       download: 'true'
                     }).toString()}`}
                     download="testimonial-instagram.png"
-                    className="text-center px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded hover:from-purple-600 hover:to-pink-600"
+                    className="text-center px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded hover:from-purple-600 hover:to-pink-600 col-span-2"
                   >
                     📱 Instagram
                   </a>
