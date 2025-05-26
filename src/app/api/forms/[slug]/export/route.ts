@@ -52,8 +52,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } } // Changed from formId to slug
 ) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient(); // Corrected initialization
   const { slug } = params; // Changed from formId to slug
 
   // 1. Authenticate the user
