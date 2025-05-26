@@ -17,7 +17,12 @@ export default function CreateFormPage() {
       buttonColor: '#4F46E5',
       backgroundColor: '#FFFFFF',
       textColor: '#1F2937',
-      thankYouMessage: 'Thank you for your feedback!'
+      thankYouMessage: 'Thank you for your feedback!',
+      collectEmail: false,
+      collectName: false,
+      collectCompany: false,
+      collectPhone: false,
+      requireConsent: true
     }
   })
 
@@ -170,6 +175,105 @@ export default function CreateFormPage() {
                   placeholder="Thank you for your feedback!"
                 />
               </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Optional Information Collection</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Choose which optional fields to show to respondents. This helps you identify feedback providers and build stronger relationships.
+              </p>
+              
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="collectName"
+                    checked={formData.settings.collectName}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      settings: { ...formData.settings, collectName: e.target.checked }
+                    })}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="collectName" className="ml-2 block text-sm text-gray-700">
+                    Collect respondent name
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="collectEmail"
+                    checked={formData.settings.collectEmail}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      settings: { ...formData.settings, collectEmail: e.target.checked }
+                    })}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="collectEmail" className="ml-2 block text-sm text-gray-700">
+                    Collect email address
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="collectCompany"
+                    checked={formData.settings.collectCompany}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      settings: { ...formData.settings, collectCompany: e.target.checked }
+                    })}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="collectCompany" className="ml-2 block text-sm text-gray-700">
+                    Collect company name
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="collectPhone"
+                    checked={formData.settings.collectPhone}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      settings: { ...formData.settings, collectPhone: e.target.checked }
+                    })}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="collectPhone" className="ml-2 block text-sm text-gray-700">
+                    Collect phone number
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Sharing Consent</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Require consent before sharing positive feedback as testimonials on social media or marketing materials.
+              </p>
+              
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="requireConsent"
+                  checked={formData.settings.requireConsent}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    settings: { ...formData.settings, requireConsent: e.target.checked }
+                  })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="requireConsent" className="ml-2 block text-sm text-gray-700">
+                  Require consent to share feedback publicly
+                </label>
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Recommended for compliance with privacy regulations. When enabled, respondents must explicitly agree to allow their feedback to be shared.
+              </p>
             </div>
 
             <div className="flex justify-end gap-4">
