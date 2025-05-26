@@ -38,8 +38,7 @@ interface UserUsage {
 
 export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps) {
   const [isGenerating, setIsGenerating] = useState(false)
-  const [imageUrls, setImageUrls] = useState<{[key: string]: string}>({})
-  const [testimonialId, setTestimonialId] = useState<string>('')
+  const [imageUrl, setImageUrl] = useState<string>('')
   const [shareText, setShareText] = useState('')
   const [usage, setUsage] = useState<UserUsage | null>(null)
   const [loadingUsage, setLoadingUsage] = useState(false)
@@ -70,41 +69,16 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
   const generateCard = async () => {
     setIsGenerating(true)
     try {
-      const testimonialData = {
+      const params = new URLSearchParams({
         feedback: response.text || `Rated us ${response.rating}/5 stars`,
         rating: response.rating?.toString() || '5',
-        customerName: response.respondentName || 'A satisfied customer',
-        businessName: form.user?.name || form.title,
-        format: 'web' // Default format for preview
-      }
+        name: response.respondentName || 'A satisfied customer',
+        business: form.user?.name || form.title,
+        format: 'web' // Default to web format for preview
+      })
       
-      // Generate images for all formats
-      const formats = ['facebook', 'linkedin', 'instagram', 'twitter']
-      const newImageUrls: {[key: string]: string} = {}
-      let generatedTestimonialId = ''
-      
-      for (const format of formats) {
-        const formatData = { ...testimonialData, format }
-        
-        const response = await fetch('/api/generate-testimonial', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formatData),
-        })
-        
-        if (response.ok) {
-          const result = await response.json()
-          newImageUrls[format] = result.imageUrl
-          if (format === 'facebook') {
-            generatedTestimonialId = result.testimonialId
-          }
-        }
-      }
-      
-      setImageUrls(newImageUrls)
-      setTestimonialId(generatedTestimonialId)
+      const url = `/api/testimonials?${params.toString()}`
+      setImageUrl(url)
       
       // Generate engaging default share text with emojis and hashtags
       const businessName = form.user?.name || form.title
@@ -163,15 +137,21 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
-    // Create a shareable URL with testimonial ID
-    const shareUrl = `${window.location.origin}/testimonial/${response.id}?tid=${testimonialId}`
+    // Create a shareable URL with testimonial data
+    const shareParams = new URLSearchParams({
+      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+      rating: response.rating?.toString() || '5',
+      name: response.respondentName || 'A satisfied customer',
+      business: form.user?.name || form.title,
+    })
+    
+    const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
     
     // LinkedIn sharing with proper URL and text
     const linkedInText = encodeURIComponent(shareText)
     const linkedInUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${linkedInText}%0A%0A${encodeURIComponent(shareUrl)}`
     
     console.log('LinkedIn sharing URL:', shareUrl)
-    console.log('LinkedIn Image URL:', imageUrls.linkedin)
     
     window.open(linkedInUrl, '_blank', 'width=600,height=600')
     await markAsShared('linkedin')
@@ -195,32 +175,26 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       console.log('Could not copy to clipboard:', error)
     }
 
-    // Create a shareable URL using our stored testimonial ID and the actual testimonial page
-    const shareUrl = `${window.location.origin}/testimonial/${response.id}?tid=${testimonialId}`
+    // Create a shareable URL with the testimonial data
+    const shareParams = new URLSearchParams({
+      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+      rating: response.rating?.toString() || '5',
+      name: response.respondentName || 'A satisfied customer',
+      business: form.user?.name || form.title,
+    })
+    
+    const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
     
     // Facebook sharing URL
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     
     console.log('Sharing URL:', shareUrl) // Debug log
-    console.log('Facebook Image URL:', imageUrls.facebook) // Debug log
     
-    // Show user-friendly options
-    const message = `📘 Ready to share on Facebook!\n\n✅ Your post text has been copied to your clipboard.\n✅ High-quality image will display automatically\n\n🔗 Sharing: ${shareUrl.substring(0, 60)}...\n\nThe image is now stored and accessible, so Facebook should display it perfectly!`
+    // Show user-friendly message
+    const message = `📘 Ready to share on Facebook!\n\n✅ Your post text has been copied to your clipboard.\n✅ High-quality image will display automatically\n\n🔗 Sharing: ${shareUrl.substring(0, 60)}...`
     
-    const userChoice = confirm(message + '\n\nClick OK to SHARE NOW, or Cancel to copy the image URL.')
-    
-    if (userChoice) {
-      // Open Facebook share dialog
-      window.open(facebookUrl, '_blank', 'width=600,height=400')
-    } else {
-      // Copy image URL to clipboard as fallback
-      try {
-        await navigator.clipboard.writeText(imageUrls.facebook || '')
-        alert('📋 Facebook image URL copied to clipboard!\n\nYou can now paste this image URL manually if needed.')
-      } catch (error) {
-        alert('Facebook Image URL: ' + (imageUrls.facebook || ''))
-      }
-    }
+    alert(message)
+    window.open(facebookUrl, '_blank', 'width=600,height=400')
     
     await markAsShared('facebook')
   }
@@ -371,7 +345,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
           {/* Generate Card Section */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-4">Testimonial Card</h3>
-            {Object.keys(imageUrls).length === 0 ? (
+            {!imageUrl ? (
               <button
                 onClick={generateCard}
                 disabled={isGenerating}
@@ -381,28 +355,20 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
               </button>
             ) : (
               <div className="space-y-4">
-                {imageUrls.facebook && (
-                  <div className="w-full h-80 rounded-lg shadow-lg border overflow-hidden">
-                    <img 
-                      src={imageUrls.facebook} 
-                      alt="Testimonial Card Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
+                <iframe 
+                  src={imageUrl} 
+                  className="w-full h-80 rounded-lg shadow-lg border"
+                  title="Testimonial Card Preview"
+                />
                 <div className="flex gap-2 flex-wrap">
                   <button
-                    onClick={() => imageUrls.facebook && window.open(imageUrls.facebook, '_blank')}
+                    onClick={() => window.open(imageUrl, '_blank')}
                     className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                    disabled={!imageUrls.facebook}
                   >
                     Open Full Size
                   </button>
                   <button
-                    onClick={() => {
-                      setImageUrls({})
-                      setTestimonialId('')
-                    }}
+                    onClick={() => setImageUrl('')}
                     className="px-4 py-2 text-indigo-600 hover:text-indigo-800"
                   >
                     Generate New
@@ -412,21 +378,21 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
                 {/* Format-specific download buttons */}
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   <a
-                    href={imageUrls.facebook}
+                    href={`/api/testimonials?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=facebook&download=true`}
                     download="testimonial-facebook.png"
                     className="text-center px-3 py-2 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
                   >
                     📘 Facebook
                   </a>
                   <a
-                    href={imageUrls.linkedin}
+                    href={`/api/testimonials?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=linkedin&download=true`}
                     download="testimonial-linkedin.png"
                     className="text-center px-3 py-2 bg-blue-700 text-white text-xs rounded hover:bg-blue-800"
                   >
                     💼 LinkedIn
                   </a>
                   <a
-                    href={imageUrls.instagram}
+                    href={`/api/testimonials?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=instagram&download=true`}
                     download="testimonial-instagram.png"
                     className="text-center px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded hover:from-purple-600 hover:to-pink-600 col-span-2"
                   >
@@ -438,7 +404,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
           </div>
 
           {/* Share Text */}
-          {Object.keys(imageUrls).length > 0 && (
+          {imageUrl && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Share Text
@@ -453,7 +419,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
           )}
 
           {/* Share Buttons */}
-          {Object.keys(imageUrls).length > 0 && (
+          {imageUrl && (
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">Share to Social Media</h3>
               <div className="grid grid-cols-2 gap-4">

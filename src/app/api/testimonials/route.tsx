@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ImageResponse } from 'next/og'
 
+export const runtime = 'edge'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -10,6 +12,7 @@ export async function GET(request: NextRequest) {
     const customerName = searchParams.get('name') || 'Anonymous'
     const businessName = searchParams.get('business') || 'Our Business'
     const format = searchParams.get('format') || 'web' // web, instagram, facebook, linkedin
+    const download = searchParams.get('download') === 'true'
     
     // Generate star display (only for star ratings, clamp to 1-5 range)
     const clampedRating = Math.max(1, Math.min(5, rating))
@@ -50,8 +53,21 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    const getAccentColor = () => {
+      switch (format) {
+        case 'facebook':
+          return '#4267B2'
+        case 'linkedin':
+          return '#0077B5'
+        case 'instagram':
+          return '#4f46e5'
+        default:
+          return '#4f46e5'
+      }
+    }
+    
     // If this is a request for an actual image (for downloads), return ImageResponse
-    if (searchParams.get('download') === 'true') {
+    if (download) {
       return new ImageResponse(
         (
           <div
@@ -80,7 +96,7 @@ export async function GET(request: NextRequest) {
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 maxWidth: '90%',
                 textAlign: 'center',
-                border: format === 'linkedin' ? '4px solid #0077B5' : 'none',
+                border: format === 'linkedin' ? `4px solid ${getAccentColor()}` : 'none',
               }}
             >
               {/* Business Name */}
@@ -100,7 +116,7 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   fontSize: format === 'instagram' ? '100px' : '80px',
-                  color: format === 'linkedin' ? '#0077B5' : format === 'facebook' ? '#4267B2' : '#4f46e5',
+                  color: getAccentColor(),
                   marginBottom: '32px',
                   lineHeight: 1,
                 }}
@@ -158,7 +174,7 @@ export async function GET(request: NextRequest) {
               >
                 <span>Powered by</span>
                 <span style={{ 
-                  color: format === 'linkedin' ? '#0077B5' : format === 'facebook' ? '#4267B2' : '#4f46e5',
+                  color: getAccentColor(),
                   fontWeight: 'bold'
                 }}>
                   FeedbackHub
@@ -231,7 +247,7 @@ export async function GET(request: NextRequest) {
             }
             .quote {
               font-size: 80px;
-              color: #4f46e5;
+              color: ${getAccentColor()};
               margin-bottom: 32px;
               line-height: 1;
             }
@@ -258,7 +274,7 @@ export async function GET(request: NextRequest) {
               color: #9ca3af;
             }
             .powered-by .brand {
-              color: #4f46e5;
+              color: ${getAccentColor()};
               font-weight: bold;
             }
             .download-actions {
@@ -269,7 +285,7 @@ export async function GET(request: NextRequest) {
               flex-wrap: wrap;
             }
             .download-btn {
-              background: #4f46e5;
+              background: ${getAccentColor()};
               color: white;
               padding: 16px 24px;
               border-radius: 12px;
@@ -282,14 +298,11 @@ export async function GET(request: NextRequest) {
               font-size: 14px;
             }
             .download-btn:hover {
-              background: #4338ca;
+              opacity: 0.9;
               transform: translateY(-2px);
-              box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
             }
             .download-btn.facebook { background: #4267B2; }
-            .download-btn.facebook:hover { background: #365899; }
             .download-btn.linkedin { background: #0077B5; }
-            .download-btn.linkedin:hover { background: #005885; }
             .download-btn.instagram { 
               background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); 
             }
