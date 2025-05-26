@@ -1,0 +1,21 @@
+// Simple test version for debugging
+const imageResponse = new ImageResponse(
+  (
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        backgroundColor: 'white',
+        fontSize: '40px',
+        color: 'black',
+      }}
+    >
+      Hello World
+    </div>
+  ),
+  {
+    width: 1200,
+    height: 630,
+  }
+)
