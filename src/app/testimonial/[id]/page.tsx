@@ -19,12 +19,22 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
-  
-  // Use Vercel's OG image service as a reliable fallback
-  const imageUrl = `https://og-image.vercel.app/${encodeURIComponent(title)}?theme=light&md=1&fontSize=100px&images=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Ffront%2Fassets%2Fdesign%2Fvercel-triangle-black.svg`
-  
-  // Base URL for the Open Graph URL
-  const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
+
+  // Determine siteOrigin. Use NEXT_PUBLIC_APP_URL or fallback for local dev.
+  // VERCEL_URL includes http/https, NEXT_PUBLIC_VERCEL_URL is just the domain.
+  // For server-side generation, VERCEL_URL is preferred if available and correctly prefixed.
+  // For simplicity and consistency with typical Next.js setups, we'll use NEXT_PUBLIC_APP_URL.
+  const siteOrigin = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+  const imageGenParams = new URLSearchParams();
+  if (searchParams.feedback) imageGenParams.set('feedback', searchParams.feedback);
+  if (searchParams.rating) imageGenParams.set('rating', searchParams.rating);
+  if (searchParams.name) imageGenParams.set('name', searchParams.name);
+  if (searchParams.business) imageGenParams.set('business', searchParams.business);
+  imageGenParams.set('download', 'true'); // Or perhaps false if we just want to display it
+  imageGenParams.set('format', 'facebook'); // For 1200x630, suitable for OG images
+
+  const imageUrl = `${siteOrigin}/api/testimonials?${imageGenParams.toString()}`;
   
   return {
     title,
@@ -32,7 +42,7 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/testimonial/${params.id}`,
+      url: `${siteOrigin}/testimonial/${params.id}`, // Use siteOrigin
       siteName: 'FeedbackHub',
       images: [
         {

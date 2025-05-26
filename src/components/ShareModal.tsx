@@ -101,8 +101,19 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
-    const tweetText = encodeURIComponent(shareText)
-    const url = `https://twitter.com/intent/tweet?text=${tweetText}`
+    const testimonialPageParams = new URLSearchParams();
+    if (response.text) testimonialPageParams.set('feedback', response.text);
+    else testimonialPageParams.set('feedback', `Rated us ${response.rating}/5 stars`);
+    if (response.rating) testimonialPageParams.set('rating', response.rating.toString());
+    else testimonialPageParams.set('rating', '5');
+    if (response.respondentName) testimonialPageParams.set('name', response.respondentName);
+    else testimonialPageParams.set('name', 'A satisfied customer');
+    if (form.user?.name) testimonialPageParams.set('business', form.user.name);
+    else testimonialPageParams.set('business', form.title);
+
+    const sharePageUrl = `${window.location.origin}/testimonial/${response.id}?${testimonialPageParams.toString()}`;
+    const tweetText = encodeURIComponent(shareText);
+    const url = `https://twitter.com/intent/tweet?text=${tweetText}&url=${encodeURIComponent(sharePageUrl)}`;
     window.open(url, '_blank')
     await markAsShared('twitter')
   }
@@ -118,8 +129,19 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
-    const text = encodeURIComponent(shareText)
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&summary=${text}`
+    const testimonialPageParams = new URLSearchParams();
+    if (response.text) testimonialPageParams.set('feedback', response.text);
+    else testimonialPageParams.set('feedback', `Rated us ${response.rating}/5 stars`);
+    if (response.rating) testimonialPageParams.set('rating', response.rating.toString());
+    else testimonialPageParams.set('rating', '5');
+    if (response.respondentName) testimonialPageParams.set('name', response.respondentName);
+    else testimonialPageParams.set('name', 'A satisfied customer');
+    if (form.user?.name) testimonialPageParams.set('business', form.user.name);
+    else testimonialPageParams.set('business', form.title);
+
+    const sharePageUrl = `${window.location.origin}/testimonial/${response.id}?${testimonialPageParams.toString()}`;
+    // LinkedIn uses the OG tags from sharePageUrl. A summary or text parameter is not reliably used for the main post content.
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrl)}`;
     window.open(url, '_blank')
     await markAsShared('linkedin')
   }
