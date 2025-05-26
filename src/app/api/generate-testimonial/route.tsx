@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     const config = getFormatConfig()
 
-    // Generate the image - MINIMAL TEST VERSION
+    // Generate the image
     const imageResponse = new ImageResponse(
       (
         <div
@@ -119,17 +119,110 @@ export async function POST(request: NextRequest) {
             height: '100%',
             width: '100%',
             display: 'flex',
-            backgroundColor: '#4267B2',
-            color: 'white',
-            fontSize: '48px',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'white',
+            background: config.gradient,
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
+            padding: format === 'instagram' ? '60px' : '40px',
           }}
         >
-          Hello Test
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'white',
+              borderRadius: format === 'instagram' ? '32px' : '24px',
+              padding: format === 'instagram' ? '80px' : '60px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              maxWidth: '90%',
+              textAlign: 'center',
+              border: format === 'linkedin' ? `4px solid ${config.accentColor}` : 'none',
+            }}
+          >
+            {/* Business Name */}
+            <div
+              style={{
+                fontSize: config.businessFontSize,
+                fontWeight: 'bold',
+                color: '#1f2937',
+                marginBottom: '32px',
+                textAlign: 'center',
+              }}
+            >
+              {businessName}
+            </div>
+            
+            {/* Quote Symbol */}
+            <div
+              style={{
+                fontSize: config.quoteFontSize,
+                color: config.accentColor,
+                marginBottom: '32px',
+                lineHeight: 1,
+              }}
+            >
+              "
+            </div>
+            
+            {/* Feedback Text */}
+            <div
+              style={{
+                fontSize: config.feedbackFontSize,
+                color: '#374151',
+                lineHeight: 1.4,
+                marginBottom: '40px',
+                fontStyle: 'italic',
+                textAlign: 'center',
+                maxWidth: '80%',
+              }}
+            >
+              {truncatedFeedback}
+            </div>
+            
+            {/* Stars */}
+            <div
+              style={{
+                fontSize: config.starsFontSize,
+                marginBottom: '32px',
+                color: '#fbbf24',
+              }}
+            >
+              {stars}
+            </div>
+            
+            {/* Customer Name */}
+            <div
+              style={{
+                fontSize: config.nameFontSize,
+                color: '#6b7280',
+                fontWeight: 600,
+                marginBottom: '24px',
+              }}
+            >
+              — {customerName}
+            </div>
+            
+            {/* Powered by */}
+            <div
+              style={{
+                fontSize: format === 'instagram' ? '20px' : '16px',
+                color: config.accentColor,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}
+            >
+              Powered by FeedbackHub
+            </div>
+          </div>
         </div>
       ),
       {
-        width: 1200,
-        height: 630,
+        width: config.width,
+        height: config.height,
       }
     )
 
