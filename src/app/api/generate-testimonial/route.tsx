@@ -233,13 +233,19 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     
-    // Check if this is a download by testimonial ID (existing functionality)
-    const testimonialId = searchParams.get('id')
-    if (testimonialId) {
-      const format = searchParams.get('format') || 'facebook'
-      const fileName = `testimonial-${testimonialId}-${format}.png`
+    // Get parameters
+    const feedback = searchParams.get('feedback')
+    const rating = searchParams.get('rating') || '5'
+    const customerName = searchParams.get('name') || 'Anonymous'
+    const businessName = searchParams.get('business') || 'Our Business'
+    const format = searchParams.get('format') || 'facebook'
+    const download = searchParams.get('download') === 'true'
+    const id = searchParams.get('id') // For existing testimonial downloads
+    
+    // Case 1: Download existing testimonial by ID
+    if (id && !feedback) {
+      const fileName = `testimonial-${id}-${format}.png`
       
-      // Get the file from Supabase Storage
       const { data, error } = await supabase.storage
         .from('testimonials')
         .download(fileName)
@@ -251,10 +257,7 @@ export async function GET(request: NextRequest) {
         )
       }
 
-      // Convert blob to buffer
       const buffer = await data.arrayBuffer()
-
-      // Return the image with proper headers
       return new NextResponse(buffer, {
         headers: {
           'Content-Type': 'image/png',
@@ -264,15 +267,8 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    // Handle direct generation + download (new functionality for ShareModal)
-    const feedback = searchParams.get('feedback') || 'Great service!'
-    const rating = searchParams.get('rating') || '5'
-    const customerName = searchParams.get('name') || 'Anonymous'
-    const businessName = searchParams.get('business') || 'Our Business'
-    const format = searchParams.get('format') || 'facebook'
-    const download = searchParams.get('download') === 'true'
-    
-    if (download) {
+    // Case 2: Generate and download new testimonial
+    if (feedback && download) {
       // Generate the testimonial ID
       const testimonialId = crypto
         .createHash('md5')
@@ -304,7 +300,7 @@ export async function GET(request: NextRequest) {
         }
       }
       
-      // Generate new image (same logic as POST but return directly)
+      // Generate new image
       const clampedRating = Math.max(1, Math.min(5, parseInt(rating)))
       const stars = '★'.repeat(clampedRating) + '☆'.repeat(5 - clampedRating)
       const maxFeedbackLength = format === 'instagram' ? 120 : format === 'twitter' ? 80 : 100
@@ -374,7 +370,7 @@ export async function GET(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { success: false, error: 'Missing required parameters' },
+      { success: false, error: 'Missing required parameters. Provide either id or feedback with download=true' },
       { status: 400 }
     )
 
