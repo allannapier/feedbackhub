@@ -16,6 +16,7 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const rating = searchParams.rating || '5'
   const customerName = searchParams.name || 'A satisfied customer'
   const businessName = searchParams.business || 'Our Business'
+  const testimonialId = searchParams.tid // Get stored testimonial ID
   
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
@@ -23,35 +24,22 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   // Base URL for the Open Graph URL
   const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
   
-  // Use our custom OG image API for better social media images
-  const ogImageParams = new URLSearchParams({
-    feedback: feedback.substring(0, 120), // Limit length for better display
-    rating: rating,
-    name: customerName,
-    business: businessName,
-    platform: 'facebook' // Default to Facebook format
-  })
-  const ogImageUrl = `${baseUrl}/api/og?${ogImageParams.toString()}`
+  // Try to use stored images if testimonialId is available
+  let ogImageUrl = `${baseUrl}/api/og?feedback=${encodeURIComponent(feedback.substring(0, 120))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&platform=facebook`
+  let linkedinImageUrl = `${baseUrl}/api/og?feedback=${encodeURIComponent(feedback.substring(0, 120))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&platform=linkedin`
+  let twitterImageUrl = `${baseUrl}/api/og?feedback=${encodeURIComponent(feedback.substring(0, 80))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&platform=twitter`
   
-  // LinkedIn-specific image
-  const linkedinImageParams = new URLSearchParams({
-    feedback: feedback.substring(0, 120),
-    rating: rating,
-    name: customerName,
-    business: businessName,
-    platform: 'linkedin'
-  })
-  const linkedinImageUrl = `${baseUrl}/api/og?${linkedinImageParams.toString()}`
-  
-  // Twitter-specific image
-  const twitterImageParams = new URLSearchParams({
-    feedback: feedback.substring(0, 80), // Shorter for Twitter
-    rating: rating,
-    name: customerName,
-    business: businessName,
-    platform: 'twitter'
-  })
-  const twitterImageUrl = `${baseUrl}/api/og?${twitterImageParams.toString()}`
+  if (testimonialId) {
+    // Use stored images from Supabase if available
+    try {
+      const supabaseUrl = 'https://fcedxvdoercnkyhnzwzf.supabase.co'
+      ogImageUrl = `${supabaseUrl}/storage/v1/object/public/testimonials/testimonial-${testimonialId}-facebook.png`
+      linkedinImageUrl = `${supabaseUrl}/storage/v1/object/public/testimonials/testimonial-${testimonialId}-linkedin.png`
+      twitterImageUrl = `${supabaseUrl}/storage/v1/object/public/testimonials/testimonial-${testimonialId}-twitter.png`
+    } catch (error) {
+      console.log('Using fallback OG images')
+    }
+  }
   
   return {
     title,
