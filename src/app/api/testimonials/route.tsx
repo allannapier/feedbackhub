@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const rating = parseInt(searchParams.get('rating') || '5')
     const customerName = searchParams.get('name') || 'Anonymous'
     const businessName = searchParams.get('business') || 'Our Business'
-    const format = searchParams.get('format') || 'web' // web, instagram, facebook
+    const format = searchParams.get('format') || 'web' // web, instagram, facebook, linkedin
     
     // Generate star display (only for star ratings, clamp to 1-5 range)
     const clampedRating = Math.max(1, Math.min(5, rating))
@@ -25,6 +25,29 @@ export async function GET(request: NextRequest) {
     } else if (format === 'facebook') {
       width = 1200
       height = 630
+    } else if (format === 'linkedin') {
+      width = 1200
+      height = 627 // LinkedIn's preferred aspect ratio
+    }
+    
+    // Truncate feedback for better display
+    const maxFeedbackLength = format === 'instagram' ? 120 : 100
+    const truncatedFeedback = feedback.length > maxFeedbackLength 
+      ? feedback.substring(0, maxFeedbackLength) + '...' 
+      : feedback
+    
+    // Design colors and styling based on format
+    const getGradient = () => {
+      switch (format) {
+        case 'instagram':
+          return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        case 'facebook':
+          return 'linear-gradient(135deg, #4267B2 0%, #5b7bd5 100%)'
+        case 'linkedin':
+          return 'linear-gradient(135deg, #0077B5 0%, #00a0dc 100%)'
+        default:
+          return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      }
     }
     
     // If this is a request for an actual image (for downloads), return ImageResponse
@@ -40,9 +63,9 @@ export async function GET(request: NextRequest) {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: 'white',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              padding: '80px',
+              background: getGradient(),
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
+              padding: format === 'instagram' ? '60px' : '40px',
             }}
           >
             <div
@@ -52,76 +75,94 @@ export async function GET(request: NextRequest) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: 'white',
-                borderRadius: '24px',
-                padding: format === 'instagram' ? '60px' : '48px',
+                borderRadius: format === 'instagram' ? '32px' : '24px',
+                padding: format === 'instagram' ? '80px' : '60px',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 maxWidth: '90%',
                 textAlign: 'center',
+                border: format === 'linkedin' ? '4px solid #0077B5' : 'none',
               }}
             >
+              {/* Business Name */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '36px' : '32px',
+                  fontSize: format === 'instagram' ? '48px' : format === 'facebook' ? '36px' : '40px',
                   fontWeight: 'bold',
                   color: '#1f2937',
-                  marginBottom: '24px',
+                  marginBottom: '32px',
+                  textAlign: 'center',
                 }}
               >
                 {businessName}
               </div>
               
+              {/* Quote Symbol */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '80px' : '72px',
-                  color: '#4f46e5',
-                  marginBottom: '24px',
+                  fontSize: format === 'instagram' ? '100px' : '80px',
+                  color: format === 'linkedin' ? '#0077B5' : format === 'facebook' ? '#4267B2' : '#4f46e5',
+                  marginBottom: '32px',
                   lineHeight: 1,
                 }}
               >
                 "
               </div>
               
+              {/* Feedback Text */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '32px' : '28px',
+                  fontSize: format === 'instagram' ? '36px' : format === 'facebook' ? '28px' : '32px',
                   color: '#374151',
                   lineHeight: 1.4,
-                  marginBottom: '32px',
+                  marginBottom: '40px',
                   fontStyle: 'italic',
+                  textAlign: 'center',
                   maxWidth: '80%',
                 }}
               >
-                {feedback}
+                {truncatedFeedback}
               </div>
               
+              {/* Stars */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '40px' : '36px',
-                  marginBottom: '24px',
+                  fontSize: format === 'instagram' ? '48px' : '40px',
+                  marginBottom: '32px',
                   color: '#fbbf24',
                 }}
               >
                 {stars}
               </div>
               
+              {/* Customer Name */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '28px' : '24px',
+                  fontSize: format === 'instagram' ? '32px' : format === 'facebook' ? '24px' : '28px',
                   color: '#6b7280',
                   fontWeight: 600,
-                  marginBottom: '16px',
+                  marginBottom: '24px',
                 }}
               >
                 — {customerName}
               </div>
               
+              {/* Powered by */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '18px' : '16px',
+                  fontSize: format === 'instagram' ? '20px' : '16px',
                   color: '#9ca3af',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                Powered by FeedbackHub
+                <span>Powered by</span>
+                <span style={{ 
+                  color: format === 'linkedin' ? '#0077B5' : format === 'facebook' ? '#4267B2' : '#4f46e5',
+                  fontWeight: 'bold'
+                }}>
+                  FeedbackHub
+                </span>
               </div>
             </div>
           </div>
@@ -129,6 +170,10 @@ export async function GET(request: NextRequest) {
         {
           width,
           height,
+          headers: {
+            'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+            'Content-Type': 'image/png',
+          }
         }
       )
     }
@@ -139,62 +184,85 @@ export async function GET(request: NextRequest) {
       <html>
         <head>
           <meta charset="utf-8">
-          <title>Testimonial Card</title>
+          <title>Testimonial Card - ${businessName}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta property="og:title" content="${businessName} - ${rating}/5 Stars">
+          <meta property="og:description" content="${truncatedFeedback} - ${customerName}">
+          <meta property="og:image" content="${request.url}&download=true&format=facebook">
+          <meta property="og:image:width" content="1200">
+          <meta property="og:image:height" content="630">
+          <meta property="og:type" content="article">
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:image" content="${request.url}&download=true&format=facebook">
           <style>
-            body {
+            * {
               margin: 0;
-              padding: 40px;
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+              background: ${getGradient()};
               min-height: 100vh;
               display: flex;
               align-items: center;
               justify-content: center;
+              padding: 40px 20px;
             }
             .card {
               background: white;
               border-radius: 24px;
-              padding: 48px;
+              padding: 60px;
               box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-              max-width: 600px;
+              max-width: 700px;
+              width: 100%;
               text-align: center;
+              animation: fadeIn 0.5s ease-out;
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
             }
             .business-name {
-              font-size: 32px;
+              font-size: 40px;
               font-weight: bold;
               color: #1f2937;
-              margin-bottom: 24px;
+              margin-bottom: 32px;
             }
             .quote {
-              font-size: 72px;
+              font-size: 80px;
               color: #4f46e5;
-              margin-bottom: 24px;
+              margin-bottom: 32px;
               line-height: 1;
             }
             .feedback-text {
-              font-size: 28px;
+              font-size: 32px;
               color: #374151;
               line-height: 1.4;
-              margin-bottom: 32px;
+              margin-bottom: 40px;
               font-style: italic;
             }
             .stars {
-              font-size: 36px;
-              margin-bottom: 24px;
+              font-size: 40px;
+              margin-bottom: 32px;
               color: #fbbf24;
             }
             .customer-name {
-              font-size: 24px;
+              font-size: 28px;
               color: #6b7280;
               font-weight: 600;
-              margin-bottom: 16px;
+              margin-bottom: 24px;
             }
             .powered-by {
               font-size: 16px;
               color: #9ca3af;
             }
+            .powered-by .brand {
+              color: #4f46e5;
+              font-weight: bold;
+            }
             .download-actions {
-              margin-top: 32px;
+              margin-top: 40px;
               display: flex;
               gap: 16px;
               justify-content: center;
@@ -203,14 +271,35 @@ export async function GET(request: NextRequest) {
             .download-btn {
               background: #4f46e5;
               color: white;
-              padding: 12px 24px;
-              border-radius: 8px;
+              padding: 16px 24px;
+              border-radius: 12px;
               text-decoration: none;
               font-weight: 600;
-              transition: background 0.2s;
+              transition: all 0.2s;
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 14px;
             }
             .download-btn:hover {
               background: #4338ca;
+              transform: translateY(-2px);
+              box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+            }
+            .download-btn.facebook { background: #4267B2; }
+            .download-btn.facebook:hover { background: #365899; }
+            .download-btn.linkedin { background: #0077B5; }
+            .download-btn.linkedin:hover { background: #005885; }
+            .download-btn.instagram { 
+              background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); 
+            }
+            @media (max-width: 768px) {
+              .card { padding: 40px 30px; }
+              .business-name { font-size: 32px; }
+              .quote { font-size: 60px; }
+              .feedback-text { font-size: 24px; }
+              .customer-name { font-size: 20px; }
+              .download-actions { flex-direction: column; }
             }
           </style>
         </head>
@@ -218,26 +307,31 @@ export async function GET(request: NextRequest) {
           <div class="card">
             <div class="business-name">${businessName}</div>
             <div class="quote">"</div>
-            <div class="feedback-text">${feedback}</div>
+            <div class="feedback-text">${truncatedFeedback}</div>
             <div class="stars">${stars}</div>
             <div class="customer-name">— ${customerName}</div>
-            <div class="powered-by">Powered by FeedbackHub</div>
+            <div class="powered-by">Powered by <span class="brand">FeedbackHub</span></div>
             
             <div class="download-actions">
-              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=instagram" 
-                 class="download-btn" 
-                 download="testimonial-instagram.png">
-                📱 Download for Instagram
-              </a>
               <a href="/api/testimonials?${searchParams.toString()}&download=true&format=facebook" 
-                 class="download-btn" 
+                 class="download-btn facebook" 
                  download="testimonial-facebook.png">
-                📘 Download for Facebook
+                📘 Facebook (1200×630)
+              </a>
+              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=linkedin" 
+                 class="download-btn linkedin" 
+                 download="testimonial-linkedin.png">
+                💼 LinkedIn (1200×627)
+              </a>
+              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=instagram" 
+                 class="download-btn instagram" 
+                 download="testimonial-instagram.png">
+                📱 Instagram (1080×1080)
               </a>
               <a href="/api/testimonials?${searchParams.toString()}&download=true&format=web" 
                  class="download-btn" 
                  download="testimonial-web.png">
-                🌐 Download Web Version
+                🌐 Web (800×600)
               </a>
             </div>
           </div>
@@ -248,6 +342,7 @@ export async function GET(request: NextRequest) {
     return new Response(html, {
       headers: {
         'Content-Type': 'text/html',
+        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
       },
     })
   } catch (e: any) {

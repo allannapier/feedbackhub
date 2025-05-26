@@ -74,13 +74,19 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
         rating: response.rating?.toString() || '5',
         name: response.respondentName || 'A satisfied customer',
         business: form.user?.name || form.title,
+        format: 'web' // Default to web format for preview
       })
       
       const url = `/api/testimonials?${params.toString()}`
       setImageUrl(url)
       
-      // Generate default share text
-      const defaultText = `🌟 We're thrilled to share this amazing feedback! ${response.text ? `"${response.text}"` : `${response.rating}/5 stars`} Thank you ${response.respondentName || 'to our customer'} for this review! #CustomerLove #Testimonial`
+      // Generate engaging default share text with emojis and hashtags
+      const businessName = form.user?.name || form.title
+      const customerQuote = response.text ? `"${response.text}"` : `${response.rating}/5 stars`
+      const customerCredit = response.respondentName || 'our valued customer'
+      
+      const defaultText = `🌟 We're absolutely thrilled to share this amazing feedback!\n\n${customerQuote}\n\nThank you ${customerCredit} for this wonderful review! Your support means the world to us. 💝\n\n#CustomerLove #Testimonial #${businessName.replace(/\s+/g, '')} #FiveStars #HappyCustomers`
+      
       setShareText(defaultText)
       
     } catch (error) {
@@ -101,9 +107,21 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
-    const tweetText = encodeURIComponent(shareText)
-    const url = `https://twitter.com/intent/tweet?text=${tweetText}`
-    window.open(url, '_blank')
+    // Create a shareable URL with unique ID
+    const shareParams = new URLSearchParams({
+      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+      rating: response.rating?.toString() || '5',
+      name: response.respondentName || 'A satisfied customer',
+      business: form.user?.name || form.title,
+    })
+    
+    const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
+    
+    // Twitter with URL included in the tweet
+    const tweetText = encodeURIComponent(`${shareText}\n\n${shareUrl}`)
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`
+    
+    window.open(twitterUrl, '_blank', 'width=600,height=400')
     await markAsShared('twitter')
   }
 
@@ -118,9 +136,24 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
-    const text = encodeURIComponent(shareText)
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&summary=${text}`
-    window.open(url, '_blank')
+    // Create a shareable URL with unique ID for LinkedIn
+    const shareParams = new URLSearchParams({
+      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+      rating: response.rating?.toString() || '5',
+      name: response.respondentName || 'A satisfied customer',
+      business: form.user?.name || form.title,
+    })
+    
+    const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
+    
+    // LinkedIn sharing with proper URL and text
+    const linkedInText = encodeURIComponent(shareText)
+    const linkedInUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${linkedInText}%0A%0A${encodeURIComponent(shareUrl)}`
+    
+    // Alternative: Use LinkedIn's sharing API
+    // const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
+    
+    window.open(linkedInUrl, '_blank', 'width=600,height=600')
     await markAsShared('linkedin')
   }
 
@@ -142,7 +175,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       console.log('Could not copy to clipboard:', error)
     }
 
-    // Create a shareable URL with unique ID for better caching
+    // Create a shareable URL with unique ID and proper parameters for Facebook
     const shareParams = new URLSearchParams({
       feedback: response.text || `Rated us ${response.rating}/5 stars`,
       rating: response.rating?.toString() || '5',
@@ -152,25 +185,31 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     
     // Use testimonial ID for unique URL that Facebook won't cache incorrectly
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
+    
+    // Facebook sharing URL
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     
     console.log('Sharing URL:', shareUrl) // Debug log
     
-    // Show helpful message with debug option
+    // Check if we need to refresh Facebook's cache
     const debugUrl = `https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(shareUrl)}`
-    const message = `📘 Facebook Sharing Options\n\n💬 Your share text has been copied to your clipboard!\n\n✅ Share immediately (recommended)\n🔧 Debug URL if you see wrong/old content\n\nNote: If Facebook shows old content, use the Debug option to refresh their cache.`
+    
+    // Show user-friendly options
+    const message = `📘 Ready to share on Facebook!\n\n✅ Your post text has been copied to your clipboard.\n\n🔗 Sharing: ${shareUrl.substring(0, 60)}...\n\n• Click "Share Now" to post immediately\n• Click "Debug URL" if Facebook shows wrong/old content\n\nNote: If Facebook shows cached content, use Debug to refresh it.`
     
     const userChoice = confirm(message + '\n\nClick OK to SHARE NOW, or Cancel to DEBUG URL first.')
     
     if (userChoice) {
-      window.open(facebookUrl, '_blank')
+      // Open Facebook share dialog
+      window.open(facebookUrl, '_blank', 'width=600,height=400')
     } else {
-      // Open debug tool and provide instructions
+      // Open debug tool with instructions
       window.open(debugUrl, '_blank')
       setTimeout(() => {
-        alert('🔧 Facebook URL Debugger opened!\n\n📋 Instructions:\n1. Click "Scrape Again" button\n2. Wait for it to update\n3. Close the debugger tab\n4. Try sharing again\n\nThis forces Facebook to refresh the cached content.')
+        alert('🔧 Facebook Debugger opened!\n\n📋 Instructions:\n1. Click "Scrape Again" button\n2. Wait for the update to complete\n3. Close the debugger tab\n4. Try sharing again\n\nThis forces Facebook to refresh its cached preview.')
       }, 1000)
     }
+    
     await markAsShared('facebook')
   }
 
@@ -317,37 +356,34 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
             <p className="text-sm text-gray-600">— {response.respondentName || 'Anonymous'}</p>
           </div>
 
-          {/* Generate Card Section */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4">Testimonial Card</h3>
-            {!imageUrl ? (
-              <button
-                onClick={generateCard}
-                disabled={isGenerating}
-                className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-              >
-                {isGenerating ? 'Generating...' : 'Generate Testimonial Card'}
-              </button>
-            ) : (
-              <div className="space-y-4">
-                <iframe 
-                  src={imageUrl} 
-                  className="w-full h-80 rounded-lg shadow-lg border"
-                  title="Testimonial Card Preview"
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => window.open(imageUrl, '_blank')}
-                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                  <a
+                    href={`/api/testimonials?${new URLSearchParams({
+                      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+                      rating: response.rating?.toString() || '5',
+                      name: response.respondentName || 'A satisfied customer',
+                      business: form.user?.name || form.title,
+                      format: 'linkedin',
+                      download: 'true'
+                    }).toString()}`}
+                    download="testimonial-linkedin.png"
+                    className="text-center px-3 py-2 bg-blue-700 text-white text-xs rounded hover:bg-blue-800"
                   >
-                    Open Full Size
-                  </button>
-                  <button
-                    onClick={() => setImageUrl('')}
-                    className="px-4 py-2 text-indigo-600 hover:text-indigo-800"
+                    💼 LinkedIn
+                  </a>
+                  <a
+                    href={`/api/testimonials?${new URLSearchParams({
+                      feedback: response.text || `Rated us ${response.rating}/5 stars`,
+                      rating: response.rating?.toString() || '5',
+                      name: response.respondentName || 'A satisfied customer',
+                      business: form.user?.name || form.title,
+                      format: 'instagram',
+                      download: 'true'
+                    }).toString()}`}
+                    download="testimonial-instagram.png"
+                    className="text-center px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded hover:from-purple-600 hover:to-pink-600"
                   >
-                    Generate New
-                  </button>
+                    📱 Instagram
+                  </a>
                 </div>
               </div>
             )}

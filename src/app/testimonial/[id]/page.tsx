@@ -20,11 +20,38 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const title = `${businessName} - ${rating}/5 Stars`
   const description = `"${feedback}" - ${customerName}`
   
-  // Use Vercel's OG image service as a reliable fallback
-  const imageUrl = `https://og-image.vercel.app/${encodeURIComponent(title)}?theme=light&md=1&fontSize=100px&images=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Ffront%2Fassets%2Fdesign%2Fvercel-triangle-black.svg`
-  
   // Base URL for the Open Graph URL
   const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
+  
+  // Use our custom OG image API for better social media images
+  const ogImageParams = new URLSearchParams({
+    feedback: feedback.substring(0, 120), // Limit length for better display
+    rating: rating,
+    name: customerName,
+    business: businessName,
+    platform: 'facebook' // Default to Facebook format
+  })
+  const ogImageUrl = `${baseUrl}/api/og?${ogImageParams.toString()}`
+  
+  // LinkedIn-specific image
+  const linkedinImageParams = new URLSearchParams({
+    feedback: feedback.substring(0, 120),
+    rating: rating,
+    name: customerName,
+    business: businessName,
+    platform: 'linkedin'
+  })
+  const linkedinImageUrl = `${baseUrl}/api/og?${linkedinImageParams.toString()}`
+  
+  // Twitter-specific image
+  const twitterImageParams = new URLSearchParams({
+    feedback: feedback.substring(0, 80), // Shorter for Twitter
+    rating: rating,
+    name: customerName,
+    business: businessName,
+    platform: 'twitter'
+  })
+  const twitterImageUrl = `${baseUrl}/api/og?${twitterImageParams.toString()}`
   
   return {
     title,
@@ -36,26 +63,38 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
       siteName: 'FeedbackHub',
       images: [
         {
-          url: imageUrl,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: `Customer testimonial for ${businessName}`,
+          type: 'image/png',
         },
       ],
-      type: 'website',
+      type: 'article',
+      locale: 'en_US',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [imageUrl],
+      images: [twitterImageUrl],
+      creator: '@feedbackhub',
+      site: '@feedbackhub',
     },
     // Add additional meta tags for better compatibility
     other: {
-      'fb:app_id': '12345', // You can add your actual Facebook App ID here if you have one
       'og:image:type': 'image/png',
       'og:image:width': '1200',
       'og:image:height': '630',
+      'og:image:secure_url': ogImageUrl,
+      'twitter:image:alt': `Customer testimonial for ${businessName}`,
+      // LinkedIn specific tags
+      'linkedin:owner': 'FeedbackHub',
+      'linkedin:image': linkedinImageUrl,
+      // Facebook specific tags
+      'fb:app_id': 'FeedbackHub',
+      'article:author': businessName,
+      'article:section': 'Customer Reviews',
     }
   }
 }
