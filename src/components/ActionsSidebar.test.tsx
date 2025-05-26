@@ -18,6 +18,7 @@ afterAll(() => {
 describe('ActionsSidebar Component', () => {
   const mockForm = {
     id: 'form-xyz-789',
+    slug: 'form-xyz-slug-789', // Added slug
     responses: [
       { id: 'resp1', rating: 5, answer: 'yes' },
       { id: 'resp2', rating: 2, answer: 'no' },
@@ -48,7 +49,7 @@ describe('ActionsSidebar Component', () => {
     fireEvent.click(exportButton);
 
     // Check that window.location.href was set correctly
-    expect((window as any).location.href).toBe(`/api/forms/${mockForm.id}/export`);
+    expect((window as any).location.href).toBe(`/api/forms/${mockForm.slug}/export`); // Use mockForm.slug
 
     // Check button state changes
     expect(screen.getByRole('button', { name: /Exporting.../i })).toBeInTheDocument();
@@ -78,6 +79,7 @@ describe('ActionsSidebar Component', () => {
   test('"Generate Social Cards" button is disabled if no positive responses', () => {
     const formWithNoPositiveResponses = {
       id: 'form-abc-123',
+      slug: 'form-abc-slug-123', // Added slug
       responses: [
         { id: 'resp1', rating: 3, answer: 'no' },
         { id: 'resp2', rating: 2, answer: 'maybe' },

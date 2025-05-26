@@ -5,7 +5,8 @@ import Link from 'next/link'
 
 interface ActionsSidebarProps {
   form: {
-    id: string
+    id: string;
+    slug: string; // Add slug here
     responses?: Array<{
       id: string
       rating?: number
@@ -32,7 +33,7 @@ export function ActionsSidebar({ form }: ActionsSidebarProps) {
   const handleExportResponses = async () => {
     setIsExporting(true);
     // Construct the URL for the export endpoint
-    const exportUrl = `/api/forms/${form.id}/export`;
+    const exportUrl = `/api/forms/${form.slug}/export`; // Use form.slug
     
     // Use window.location.href to trigger the download
     window.location.href = exportUrl;

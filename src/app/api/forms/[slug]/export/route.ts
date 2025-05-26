@@ -3,13 +3,8 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Helper function to convert JSON data to CSV
-// Based on the provided example, with corrections for key mapping and escaping
-function convertToCSV(data: any[], formId: string) {
+function convertToCSV(data: any[], identifier: string) { // Changed formId to identifier
   if (!data || data.length === 0) {
-    // Return header even if there's no data, or an empty string if preferred
-    // For this case, let's return header + a line indicating no responses
-    // return "ID,CreatedAt,Rating,Text,Answer,RespondentName,RespondentEmail,Shared\nNo responses found for this form.";
-    // Or, more simply, just the header if empty data means an empty CSV body is expected.
      return "ID,CreatedAt,Rating,Text,Answer,RespondentName,RespondentEmail,Shared";
   }
 
@@ -21,7 +16,7 @@ function convertToCSV(data: any[], formId: string) {
     CreatedAt: 'createdAt',
     Rating: 'rating',
     Text: 'text',
-    Answer: 'answer', // Assuming 'answer' is a direct field name in your Response table
+    Answer: 'answer',
     RespondentName: 'respondentName',
     RespondentEmail: 'respondentEmail',
     Shared: 'shared'
@@ -39,13 +34,10 @@ function convertToCSV(data: any[], formId: string) {
       } else if (typeof value === 'number') {
         value = String(value);
       } else if (typeof value === 'string') {
-        // Escape quotes and handle commas/newlines/carriage returns
         if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
           value = '"' + value.replace(/"/g, '""') + '"';
         }
-      }
-      // For Date objects, format them appropriately
-      else if (value instanceof Date) {
+      } else if (value instanceof Date) {
         value = value.toISOString();
       }
       return value;
@@ -58,11 +50,11 @@ function convertToCSV(data: any[], formId: string) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { formId: string } }
+  { params }: { params: { slug: string } } // Changed from formId to slug
 ) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  const { formId } = params;
+  const { slug } = params; // Changed from formId to slug
 
   // 1. Authenticate the user
   const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -74,18 +66,17 @@ export async function GET(
     });
   }
 
-  // 2. Verify form ownership
+  // 2. Fetch the Form using slug and userId to get the actual form.id
   const { data: form, error: formError } = await supabase
-    .from('Form') // Ensure your table name is correct, e.g., 'forms' or 'Form'
-    .select('id, userId') // Select userId to confirm ownership
-    .eq('id', formId)
+    .from('Form')
+    .select('id') // We need the actual ID to fetch responses
+    .eq('slug', slug) // Use slug to find the form
     .eq('userId', user.id)
     .single();
 
   if (formError || !form) {
-    // Log the error for debugging if it's a server error, not just 'not found'
-    if (formError && formError.code !== 'PGRST116') { // PGRST116: 'single' row not found
-      console.error('Error fetching form:', formError);
+    if (formError && formError.code !== 'PGRST116') {
+      console.error('Error fetching form by slug:', formError);
     }
     return new NextResponse(
       JSON.stringify({ error: 'Form not found or access denied.' }),
@@ -93,13 +84,13 @@ export async function GET(
     );
   }
 
+  const formId = form.id; // This is the actual ID for the Response table
+
   // 3. Fetch responses for the given formId
-  // Ensure your 'Response' table is named correctly, e.g., 'responses' or 'Response'
-  // And field names like 'respondentName', 'respondentEmail' are correct.
   const { data: responses, error: responsesError } = await supabase
-    .from('Response') // Ensure your table name is correct
+    .from('Response')
     .select('id, createdAt, rating, text, answer, respondentName, respondentEmail, shared')
-    .eq('formId', formId);
+    .eq('formId', formId); // Use the fetched formId here
 
   if (responsesError) {
     console.error('Error fetching responses:', responsesError);
@@ -109,27 +100,15 @@ export async function GET(
     );
   }
 
-  if (!responses || responses.length === 0) {
-    // Return CSV with only headers if no responses, or a message
-    const csvData = convertToCSV([], formId); // Pass empty array
-     return new Response(csvData, {
-      status: 200, // OK, but data is empty
-      headers: {
-        'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="responses-${formId}.csv"`,
-      },
-    });
-  }
-
-  // 4. Convert response data to CSV
-  const csvData = convertToCSV(responses, formId);
+  // If no responses, convertToCSV will return only headers
+  const csvData = convertToCSV(responses || [], slug); // Pass slug for consistency if needed by convertToCSV
 
   // 5. Return CSV data with appropriate headers
   return new Response(csvData, {
     status: 200,
     headers: {
       'Content-Type': 'text/csv',
-      'Content-Disposition': `attachment; filename="responses-${formId}.csv"`,
+      'Content-Disposition': `attachment; filename="responses-${slug}.csv"`, // Use slug in filename
     },
   });
 }
