@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface NavbarProps {
   user?: {
@@ -16,6 +16,7 @@ export function Navbar({ user }: NavbarProps) {
   const pathname = usePathname()
   const [isLoading, setIsLoading] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const navRef = useRef<HTMLDivElement>(null)
 
   const handleSignOut = async () => {
     setIsLoading(true)
@@ -71,18 +72,28 @@ export function Navbar({ user }: NavbarProps) {
   }
 
   const toggleDropdown = (groupName: string) => {
-    setActiveDropdown(activeDropdown === groupName ? null : groupName)
+    console.log('Toggling dropdown:', groupName) // Debug log
+    setActiveDropdown(prev => {
+      const newState = prev === groupName ? null : groupName
+      console.log('New dropdown state:', newState) // Debug log
+      return newState
+    })
   }
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => setActiveDropdown(null)
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setActiveDropdown(null)
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-white shadow-sm border-b border-gray-200" ref={navRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo and main nav */}
@@ -111,11 +122,13 @@ export function Navbar({ user }: NavbarProps) {
                       </Link>
                     ) : (
                       <button
+                        type="button"
                         onClick={(e) => {
+                          e.preventDefault()
                           e.stopPropagation()
                           toggleDropdown(group.name)
                         }}
-                        className={`inline-flex items-center px-3 py-2 border-b-2 text-sm font-medium ${
+                        className={`inline-flex items-center px-3 py-2 border-b-2 text-sm font-medium focus:outline-none ${
                           isGroupActive(group)
                             ? 'border-indigo-500 text-gray-900'
                             : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
@@ -123,24 +136,27 @@ export function Navbar({ user }: NavbarProps) {
                       >
                         <span className="mr-2">{group.icon}</span>
                         {group.name}
-                        <span className={`ml-1 text-xs transition-transform ${
+                        <span className={`ml-1 text-xs transition-transform duration-200 ${
                           activeDropdown === group.name ? 'rotate-180' : ''
                         }`}>▼</span>
                       </button>
                     )}
 
-                    {/* Dropdown menu */}
+                    {/* Dropdown menu - Enhanced visibility */}
                     {!group.single && activeDropdown === group.name && (
-                      <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-                        <div className="py-1">
+                      <div 
+                        className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-[1000]"
+                        style={{ zIndex: 1000 }}
+                      >
+                        <div className="py-2">
                           {group.items?.map((item) => (
                             <Link
                               key={item.name}
                               href={item.href}
-                              className={`flex items-center px-4 py-2 text-sm ${
+                              className={`flex items-center px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${
                                 isActive(item.href)
-                                  ? 'bg-indigo-50 text-indigo-700'
-                                  : 'text-gray-700 hover:bg-gray-50'
+                                  ? 'bg-indigo-50 text-indigo-700 border-r-2 border-indigo-500'
+                                  : 'text-gray-700'
                               }`}
                               onClick={() => setActiveDropdown(null)}
                             >
@@ -162,38 +178,48 @@ export function Navbar({ user }: NavbarProps) {
             <div className="flex items-center">
               <div className="relative">
                 <button
+                  type="button"
                   onClick={(e) => {
+                    e.preventDefault()
                     e.stopPropagation()
                     toggleDropdown('user')
                   }}
-                  className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md"
+                  className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md focus:outline-none"
                 >
                   <span>Welcome, {user.name || user.email.split('@')[0]}</span>
-                  <span className={`text-xs transition-transform ${
+                  <span className={`text-xs transition-transform duration-200 ${
                     activeDropdown === 'user' ? 'rotate-180' : ''
                   }`}>▼</span>
                 </button>
 
-                {/* User dropdown */}
+                {/* User dropdown - Enhanced visibility */}
                 {activeDropdown === 'user' && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1">
-                      <div className="px-4 py-2 text-xs text-gray-500 border-b">
+                  <div 
+                    className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-[1000]"
+                    style={{ zIndex: 1000 }}
+                  >
+                    <div className="py-2">
+                      <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
                         {user.email}
                       </div>
                       <Link
                         href="/dashboard/settings"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setActiveDropdown(null)}
                       >
-                        ⚙️ Settings
+                        <span className="mr-3">⚙️</span>
+                        Settings
                       </Link>
                       <button
-                        onClick={handleSignOut}
+                        onClick={() => {
+                          setActiveDropdown(null)
+                          handleSignOut()
+                        }}
                         disabled={isLoading}
-                        className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                        className="w-full text-left flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                       >
-                        🚪 {isLoading ? 'Signing out...' : 'Sign Out'}
+                        <span className="mr-3">🚪</span>
+                        {isLoading ? 'Signing out...' : 'Sign Out'}
                       </button>
                     </div>
                   </div>
