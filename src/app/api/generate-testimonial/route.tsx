@@ -114,43 +114,23 @@ export async function POST(request: NextRequest) {
 
     const config = getFormatConfig()
 
-    // Generate the image - SIMPLIFIED VERSION THAT WORKS
+    // Generate the image - ULTRA MINIMAL TEST
     const imageResponse = new ImageResponse(
       (
         <div
           style={{
             width: '100%',
             height: '100%',
-            padding: '50px',
-            background: config.gradient,
+            background: '#4267B2',
             display: 'flex',
-            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            fontFamily: 'Arial, sans-serif',
-            textAlign: 'center',
+            fontSize: '48px',
             color: 'white',
+            fontFamily: 'Arial',
           }}
         >
-          <div style={{ fontSize: '48px', fontWeight: 'bold', marginBottom: '40px' }}>
-            {businessName}
-          </div>
-          
-          <div style={{ fontSize: '32px', fontStyle: 'italic', marginBottom: '40px', maxWidth: '80%' }}>
-            "{truncatedFeedback}"
-          </div>
-          
-          <div style={{ fontSize: '60px', marginBottom: '30px' }}>
-            {stars}
-          </div>
-          
-          <div style={{ fontSize: '24px', marginBottom: '30px' }}>
-            — {customerName}
-          </div>
-          
-          <div style={{ fontSize: '18px', color: '#E0E0E0' }}>
-            Powered by FeedbackHub
-          </div>
+          {businessName} - {stars} - {customerName}
         </div>
       ),
       {
