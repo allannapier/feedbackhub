@@ -210,20 +210,12 @@ export async function POST(request: NextRequest) {
             <div
               style={{
                 fontSize: format === 'instagram' ? '20px' : '16px',
-                color: '#9ca3af',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
+                color: config.accentColor,
+                fontWeight: 'bold',
+                textAlign: 'center',
               }}
             >
-              <span style={{ display: 'flex' }}>Powered by</span>
-              <span style={{ 
-                display: 'flex',
-                color: config.accentColor,
-                fontWeight: 'bold'
-              }}>
-                FeedbackHub
-              </span>
+              Powered by FeedbackHub
             </div>
           </div>
         </div>
