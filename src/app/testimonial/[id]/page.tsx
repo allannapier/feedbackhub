@@ -8,6 +8,7 @@ interface TestimonialPageProps {
     rating?: string
     name?: string
     business?: string
+    tid?: string
   }
 }
 
