@@ -1,16 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
 export async function GET(request: NextRequest) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
     console.log('Testing Supabase storage connection...')
     console.log('Supabase URL:', supabaseUrl)
     console.log('Service key exists:', !!supabaseServiceKey)
+    console.log('Service key length:', supabaseServiceKey?.length || 0)
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json({
+        success: false,
+        error: 'Missing environment variables',
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseServiceKey
+      })
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     
     // Test listing buckets
     const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets()
