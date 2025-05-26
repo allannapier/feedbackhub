@@ -101,6 +101,18 @@ export default function AuthPage() {
                   </svg>
                   Share to Facebook, LinkedIn and X
                 </li>
+                <li className="flex items-center">
+                  <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Printable QR Code per campaign
+                </li>
+                <li className="flex items-center">
+                  <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Embeddable web form for website
+                </li>
               </ul>
             </div>
 
@@ -138,6 +150,18 @@ export default function AuthPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   Share to Facebook, LinkedIn, X, <span className="font-medium">Instagram</span>
+                </li>
+                <li className="flex items-center">
+                  <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Printable QR Code per campaign
+                </li>
+                <li className="flex items-center">
+                  <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Embeddable web form for website
                 </li>
                 <li className="flex items-center">
                   <svg className="h-4 w-4 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
