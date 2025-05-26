@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     const config = getFormatConfig()
 
-    // Generate the image - SIMPLIFIED VERSION FOR TESTING
+    // Generate the image - MINIMAL TEST VERSION
     const imageResponse = new ImageResponse(
       (
         <div
@@ -119,24 +119,17 @@ export async function POST(request: NextRequest) {
             height: '100%',
             width: '100%',
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
             backgroundColor: '#4267B2',
             color: 'white',
-            fontSize: '32px',
-            fontFamily: 'Arial',
+            fontSize: '48px',
           }}
         >
-          <div style={{ marginBottom: '20px' }}>{businessName}</div>
-          <div style={{ fontSize: '48px', marginBottom: '20px' }}>{stars}</div>
-          <div style={{ fontStyle: 'italic', marginBottom: '20px' }}>"{truncatedFeedback}"</div>
-          <div>— {customerName}</div>
+          Hello Test
         </div>
       ),
       {
-        width: config.width,
-        height: config.height,
+        width: 1200,
+        height: 630,
       }
     )
 
