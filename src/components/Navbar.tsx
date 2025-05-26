@@ -30,6 +30,7 @@ export function Navbar({ user }: NavbarProps) {
     { name: 'Request History', href: '/dashboard/requests/history', icon: '📋' },
     { name: 'Billing', href: '/dashboard/billing', icon: '💳' },
     { name: 'Settings', href: '/dashboard/settings', icon: '⚙️' },
+    { name: 'Help', href: '/dashboard/help', icon: '❓' }, // New help link
   ]
 
   const isActive = (href: string) => {
