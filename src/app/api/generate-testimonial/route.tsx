@@ -114,112 +114,42 @@ export async function POST(request: NextRequest) {
 
     const config = getFormatConfig()
 
-    // Generate the image
+    // Generate the image - SIMPLIFIED VERSION THAT WORKS
     const imageResponse = new ImageResponse(
       (
         <div
           style={{
-            height: '100%',
             width: '100%',
+            height: '100%',
+            padding: '50px',
+            background: config.gradient,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: 'white',
-            background: config.gradient,
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
-            padding: format === 'instagram' ? '60px' : '40px',
+            alignItems: 'center',
+            fontFamily: 'Arial, sans-serif',
+            textAlign: 'center',
+            color: 'white',
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'white',
-              borderRadius: format === 'instagram' ? '32px' : '24px',
-              padding: format === 'instagram' ? '80px' : '60px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              maxWidth: '90%',
-              textAlign: 'center',
-              border: format === 'linkedin' ? `4px solid ${config.accentColor}` : 'none',
-            }}
-          >
-            {/* Business Name */}
-            <div
-              style={{
-                fontSize: config.businessFontSize,
-                fontWeight: 'bold',
-                color: '#1f2937',
-                marginBottom: '32px',
-                textAlign: 'center',
-              }}
-            >
-              {businessName}
-            </div>
-            
-            {/* Quote Symbol */}
-            <div
-              style={{
-                fontSize: config.quoteFontSize,
-                color: config.accentColor,
-                marginBottom: '32px',
-                lineHeight: 1,
-              }}
-            >
-              "
-            </div>
-            
-            {/* Feedback Text */}
-            <div
-              style={{
-                fontSize: config.feedbackFontSize,
-                color: '#374151',
-                lineHeight: 1.4,
-                marginBottom: '40px',
-                fontStyle: 'italic',
-                textAlign: 'center',
-                maxWidth: '80%',
-              }}
-            >
-              {truncatedFeedback}
-            </div>
-            
-            {/* Stars */}
-            <div
-              style={{
-                fontSize: config.starsFontSize,
-                marginBottom: '32px',
-                color: '#fbbf24',
-              }}
-            >
-              {stars}
-            </div>
-            
-            {/* Customer Name */}
-            <div
-              style={{
-                fontSize: config.nameFontSize,
-                color: '#6b7280',
-                fontWeight: 600,
-                marginBottom: '24px',
-              }}
-            >
-              — {customerName}
-            </div>
-            
-            {/* Powered by */}
-            <div
-              style={{
-                fontSize: format === 'instagram' ? '20px' : '16px',
-                color: config.accentColor,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}
-            >
-              Powered by FeedbackHub
-            </div>
+          <div style={{ fontSize: '48px', fontWeight: 'bold', marginBottom: '40px' }}>
+            {businessName}
+          </div>
+          
+          <div style={{ fontSize: '32px', fontStyle: 'italic', marginBottom: '40px', maxWidth: '80%' }}>
+            "{truncatedFeedback}"
+          </div>
+          
+          <div style={{ fontSize: '60px', marginBottom: '30px' }}>
+            {stars}
+          </div>
+          
+          <div style={{ fontSize: '24px', marginBottom: '30px' }}>
+            — {customerName}
+          </div>
+          
+          <div style={{ fontSize: '18px', color: '#E0E0E0' }}>
+            Powered by FeedbackHub
           </div>
         </div>
       ),
