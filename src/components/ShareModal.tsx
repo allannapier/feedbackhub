@@ -378,21 +378,21 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
                 {/* Format-specific download buttons */}
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   <a
-                    href={`/api/testimonials?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=facebook&download=true`}
+                    href={`/api/generate-testimonial?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=facebook&download=true`}
                     download="testimonial-facebook.png"
                     className="text-center px-3 py-2 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
                   >
                     📘 Facebook
                   </a>
                   <a
-                    href={`/api/testimonials?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=linkedin&download=true`}
+                    href={`/api/generate-testimonial?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=linkedin&download=true`}
                     download="testimonial-linkedin.png"
                     className="text-center px-3 py-2 bg-blue-700 text-white text-xs rounded hover:bg-blue-800"
                   >
                     💼 LinkedIn
                   </a>
                   <a
-                    href={`/api/testimonials?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=instagram&download=true`}
+                    href={`/api/generate-testimonial?feedback=${encodeURIComponent(response.text || `Rated us ${response.rating}/5 stars`)}&rating=${response.rating?.toString() || '5'}&name=${encodeURIComponent(response.respondentName || 'A satisfied customer')}&business=${encodeURIComponent(form.user?.name || form.title)}&format=instagram&download=true`}
                     download="testimonial-instagram.png"
                     className="text-center px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded hover:from-purple-600 hover:to-pink-600 col-span-2"
                   >
