@@ -216,8 +216,9 @@ export async function POST(request: NextRequest) {
                 gap: '8px',
               }}
             >
-              <span>Powered by</span>
+              <span style={{ display: 'flex' }}>Powered by</span>
               <span style={{ 
+                display: 'flex',
                 color: config.accentColor,
                 fontWeight: 'bold'
               }}>
