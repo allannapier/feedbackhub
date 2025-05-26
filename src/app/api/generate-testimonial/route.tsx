@@ -229,6 +229,9 @@ export async function POST(request: NextRequest) {
     // Convert to buffer
     const imageBuffer = await imageResponse.arrayBuffer()
     const buffer = Buffer.from(imageBuffer)
+    
+    console.log(`Generated image buffer: ${buffer.length} bytes`)
+    console.log(`Uploading to bucket: testimonials, filename: ${fileName}`)
 
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -239,20 +242,39 @@ export async function POST(request: NextRequest) {
         upsert: true
       })
 
+    console.log('Upload result:', { uploadData, uploadError })
+
     if (uploadError) {
+      console.error('Upload error details:', uploadError)
       throw new Error(`Upload failed: ${uploadError.message}`)
     }
+
+    console.log('Upload successful, getting public URL...')
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('testimonials')
       .getPublicUrl(fileName)
+      
+    console.log('Public URL:', publicUrl)
+
+    // Debug: List bucket contents to verify upload
+    try {
+      const { data: bucketContents, error: listError } = await supabase.storage
+        .from('testimonials')
+        .list('')
+      console.log('Bucket contents after upload:', bucketContents)
+      if (listError) console.error('List error:', listError)
+    } catch (listErr) {
+      console.error('Error listing bucket:', listErr)
+    }
 
     return NextResponse.json({ 
       success: true, 
       imageUrl: publicUrl,
       cached: false,
-      testimonialId 
+      testimonialId,
+      uploadData: uploadData
     })
 
   } catch (error: any) {
