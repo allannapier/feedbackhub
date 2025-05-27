@@ -661,3 +661,176 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+      const clampedRating = Math.max(1, Math.min(5, parseInt(rating)))
+      const stars = '★'.repeat(clampedRating) + '☆'.repeat(5 - clampedRating)
+      const maxFeedbackLength = format === 'instagram' ? 120 : format === 'twitter' ? 80 : 100
+      const truncatedFeedback = feedback.length > maxFeedbackLength 
+        ? feedback.substring(0, maxFeedbackLength) + '...' 
+        : feedback
+
+      const getFormatConfig = () => {
+        switch (format) {
+          case 'instagram':
+            return { width: 1080, height: 1080 }
+          case 'linkedin':
+            return { width: 1200, height: 627 }
+          case 'twitter':
+            return { width: 1200, height: 675 }
+          default:
+            return { width: 1200, height: 630 }
+        }
+      }
+
+      const config = getFormatConfig()
+
+      const imageResponse = new ImageResponse(
+        (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontFamily: 'system-ui',
+              padding: '40px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                backgroundColor: 'white',
+                padding: '60px',
+                borderRadius: '20px',
+                width: '90%',
+                maxHeight: '90%',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '60px',
+                  color: '#2563eb',
+                  marginBottom: '20px',
+                }}
+              >
+                "
+              </div>
+              
+              <div
+                style={{
+                  fontSize: '32px',
+                  fontWeight: 'bold',
+                  color: '#2563eb',
+                  marginBottom: '30px',
+                }}
+              >
+                {businessName}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: '20px',
+                  color: '#374151',
+                  fontStyle: 'italic',
+                  marginBottom: '30px',
+                  lineHeight: '1.4',
+                }}
+              >
+                {truncatedFeedback}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: '36px',
+                  color: '#fbbf24',
+                  marginBottom: '20px',
+                }}
+              >
+                {stars}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: '16px',
+                  color: '#6b7280',
+                  marginBottom: '20px',
+                }}
+              >
+                {clampedRating} out of 5 stars
+              </div>
+              
+              <div
+                style={{
+                  fontSize: '18px',
+                  color: '#6b7280',
+                  fontWeight: '600',
+                  marginBottom: '20px',
+                }}
+              >
+                — {customerName}
+              </div>
+              
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: '#9ca3af',
+                  marginBottom: '20px',
+                }}
+              >
+                VERIFIED CUSTOMER REVIEW
+              </div>
+              
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: '#9ca3af',
+                }}
+              >
+                Powered by FeedbackHub
+              </div>
+            </div>
+          </div>
+        ),
+        {
+          width: config.width,
+          height: config.height,
+        }
+      )
+
+      const imageBuffer = await imageResponse.arrayBuffer()
+      const buffer = Buffer.from(imageBuffer)
+
+      await supabase.storage
+        .from('testimonials')
+        .upload(fileName, buffer, {
+          contentType: 'image/png',
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      return new NextResponse(buffer, {
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Content-Disposition': `attachment; filename="${fileName}"`,
+        },
+      })
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Missing required parameters. Provide either id or feedback with download=true' },
+      { status: 400 }
+    )
+
+  } catch (error: any) {
+    console.error('Error serving testimonial image:', error)
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    )
+  }
+}
