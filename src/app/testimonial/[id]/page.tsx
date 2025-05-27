@@ -33,6 +33,7 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   if (searchParams.business) imageGenParams.set('business', searchParams.business);
   imageGenParams.set('download', 'true'); // Or perhaps false if we just want to display it
   imageGenParams.set('format', 'facebook'); // For 1200x630, suitable for OG images
+  imageGenParams.set('uid', params.id); // Add unique ID for cache busting
 
   const imageUrl = `${siteOrigin}/api/testimonials?${imageGenParams.toString()}`;
   
