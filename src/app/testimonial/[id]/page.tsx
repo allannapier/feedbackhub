@@ -26,7 +26,7 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const pageUrl = `${baseUrl}/testimonial/${params.id}?${new URLSearchParams(searchParams as any).toString()}`
   
   // Generate a simple OG image URL that will create a visual representation
-  const ogImageUrl = `${baseUrl}/api/og-testimonial?feedback=${encodeURIComponent(feedback.substring(0, 100))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}`
+  const ogImageUrl = `${baseUrl}/api/generate-testimonial?feedback=${encodeURIComponent(feedback.substring(0, 100))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&format=facebook&download=true`
   
   return {
     title,
