@@ -42,6 +42,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
   const [shareText, setShareText] = useState('')
   const [usage, setUsage] = useState<UserUsage | null>(null)
   const [loadingUsage, setLoadingUsage] = useState(false)
+  const [testimonialId, setTestimonialId] = useState<string>('')
 
   useEffect(() => {
     if (isOpen) {
@@ -87,7 +88,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       const generateData = await generateResponse.json()
       if (generateData.success) {
         // Store the testimonialId for sharing
-        window.testimonialId = generateData.testimonialId
+        setTestimonialId(generateData.testimonialId)
         
         const params = new URLSearchParams({
           feedback: response.text || `Rated us ${response.rating}/5 stars`,
@@ -140,8 +141,8 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     })
     
     // Add testimonialId if available for better Open Graph images
-    if (window.testimonialId) {
-      shareParams.set('tid', window.testimonialId)
+    if (testimonialId) {
+      shareParams.set('tid', testimonialId)
     }
     
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
@@ -174,8 +175,8 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     })
     
     // Add testimonialId if available for better Open Graph images
-    if (window.testimonialId) {
-      shareParams.set('tid', window.testimonialId)
+    if (testimonialId) {
+      shareParams.set('tid', testimonialId)
     }
     
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
@@ -217,8 +218,8 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     })
     
     // Add testimonialId if available for better Open Graph images
-    if (window.testimonialId) {
-      shareParams.set('tid', window.testimonialId)
+    if (testimonialId) {
+      shareParams.set('tid', testimonialId)
     }
     
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
