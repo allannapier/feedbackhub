@@ -133,49 +133,49 @@ export async function POST(request: NextRequest) {
 
     const config = getFormatConfig()
 
-    // Generate the image - PROFESSIONAL DESIGN
+    // Generate the image - BEAUTIFUL TESTIMONIAL CARD MATCHING PAGE DESIGN
     const imageResponse = new ImageResponse(
       (
         <div
           style={{
             width: '100%',
             height: '100%',
-            background: config.gradient,
+            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #4338ca 100%)',
             display: 'flex',
-            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             fontFamily: 'Inter, system-ui, sans-serif',
             position: 'relative',
-            padding: '80px 60px',
+            padding: '40px',
           }}
         >
           {/* Background decorative elements */}
           <div
             style={{
               position: 'absolute',
-              top: '0',
-              left: '0',
-              right: '0',
-              bottom: '0',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-              borderRadius: '24px',
+              top: '20px',
+              left: '20px',
+              width: '200px',
+              height: '200px',
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: '50%',
+              filter: 'blur(60px)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '20px',
+              right: '20px',
+              width: '300px',
+              height: '300px',
+              background: 'rgba(124,58,237,0.2)',
+              borderRadius: '50%',
+              filter: 'blur(80px)',
             }}
           />
           
-          {/* Quote icon */}
-          <div
-            style={{
-              fontSize: config.quoteFontSize,
-              color: 'rgba(255,255,255,0.8)',
-              marginBottom: '40px',
-              fontWeight: 'bold',
-            }}
-          >
-            "
-          </div>
-          
-          {/* Main content container */}
+          {/* Main content container - matches the page design */}
           <div
             style={{
               display: 'flex',
@@ -183,20 +183,64 @@ export async function POST(request: NextRequest) {
               alignItems: 'center',
               textAlign: 'center',
               maxWidth: '90%',
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              padding: format === 'instagram' ? '50px 40px' : '60px 50px',
+              borderRadius: '30px',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid rgba(255,255,255,0.2)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               zIndex: 2,
             }}
           >
+            {/* Large decorative quote */}
+            <div
+              style={{
+                fontSize: format === 'instagram' ? '60px' : '80px',
+                color: 'rgba(37,99,235,0.3)',
+                marginBottom: format === 'instagram' ? '20px' : '30px',
+                fontWeight: 'bold',
+                lineHeight: '1',
+              }}
+            >
+              "
+            </div>
+            
+            {/* Business name with gradient */}
+            <div
+              style={{
+                fontSize: format === 'instagram' ? '32px' : format === 'twitter' ? '28px' : '36px',
+                fontWeight: 'bold',
+                background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                backgroundClip: 'text',
+                color: 'transparent',
+                marginBottom: format === 'instagram' ? '25px' : '30px',
+                lineHeight: '1.2',
+              }}
+            >
+              {businessName}
+            </div>
+            
+            {/* Blue underline */}
+            <div
+              style={{
+                width: '80px',
+                height: '4px',
+                background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                borderRadius: '2px',
+                marginBottom: format === 'instagram' ? '25px' : '35px',
+              }}
+            />
+            
             {/* Feedback text */}
             <div
               style={{
-                fontSize: config.feedbackFontSize,
-                color: 'white',
+                fontSize: format === 'instagram' ? '20px' : format === 'twitter' ? '18px' : '24px',
+                color: '#374151',
                 lineHeight: 1.4,
-                marginBottom: '40px',
-                fontWeight: '400',
-                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                marginBottom: format === 'instagram' ? '25px' : '35px',
+                fontStyle: 'italic',
                 maxWidth: '100%',
-                wordWrap: 'break-word',
+                fontWeight: '400',
               }}
             >
               {truncatedFeedback}
@@ -205,58 +249,64 @@ export async function POST(request: NextRequest) {
             {/* Stars */}
             <div
               style={{
-                fontSize: config.starsFontSize,
-                color: '#FFD700',
-                marginBottom: '30px',
-                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                letterSpacing: '4px',
+                fontSize: format === 'instagram' ? '32px' : format === 'twitter' ? '28px' : '40px',
+                color: '#fbbf24',
+                marginBottom: format === 'instagram' ? '20px' : '25px',
+                letterSpacing: '2px',
+                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
               }}
             >
               {stars}
             </div>
             
+            {/* Rating text */}
+            <div
+              style={{
+                fontSize: format === 'instagram' ? '14px' : '16px',
+                color: '#6b7280',
+                marginBottom: format === 'instagram' ? '20px' : '25px',
+                fontWeight: '500',
+              }}
+            >
+              {clampedRating} out of 5 stars
+            </div>
+            
             {/* Customer name */}
             <div
               style={{
-                fontSize: config.nameFontSize,
-                color: 'rgba(255,255,255,0.9)',
+                fontSize: format === 'instagram' ? '18px' : format === 'twitter' ? '16px' : '20px',
+                color: '#6b7280',
                 fontWeight: '600',
-                marginBottom: '50px',
-                textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                marginBottom: format === 'instagram' ? '15px' : '20px',
               }}
             >
               — {customerName}
             </div>
             
-            {/* Business name */}
+            {/* Verified badge */}
             <div
               style={{
-                fontSize: config.businessFontSize,
-                color: 'white',
-                fontWeight: 'bold',
-                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                backgroundColor: 'rgba(255,255,255,0.15)',
-                padding: '20px 40px',
-                borderRadius: '50px',
-                border: '2px solid rgba(255,255,255,0.2)',
+                fontSize: format === 'instagram' ? '11px' : '12px',
+                color: '#9ca3af',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: format === 'instagram' ? '20px' : '25px',
+                fontWeight: '500',
               }}
             >
-              {businessName}
+              Verified Customer Review
             </div>
-          </div>
-          
-          {/* Bottom branding */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '30px',
-              right: '40px',
-              fontSize: '14px',
-              color: 'rgba(255,255,255,0.6)',
-              fontWeight: '500',
-            }}
-          >
-            Powered by FeedbackHub
+            
+            {/* Branding */}
+            <div
+              style={{
+                fontSize: format === 'instagram' ? '12px' : '14px',
+                color: '#9ca3af',
+                fontWeight: '500',
+              }}
+            >
+              Powered by FeedbackHub
+            </div>
           </div>
         </div>
       ),
@@ -437,42 +487,42 @@ export async function GET(request: NextRequest) {
             style={{
               width: '100%',
               height: '100%',
-              background: config.gradient,
+              background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #4338ca 100%)',
               display: 'flex',
-              flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
               fontFamily: 'Inter, system-ui, sans-serif',
               position: 'relative',
-              padding: '80px 60px',
+              padding: '40px',
             }}
           >
             {/* Background decorative elements */}
             <div
               style={{
                 position: 'absolute',
-                top: '0',
-                left: '0',
-                right: '0',
-                bottom: '0',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                borderRadius: '24px',
+                top: '20px',
+                left: '20px',
+                width: '200px',
+                height: '200px',
+                background: 'rgba(255,255,255,0.1)',
+                borderRadius: '50%',
+                filter: 'blur(60px)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '20px',
+                right: '20px',
+                width: '300px',
+                height: '300px',
+                background: 'rgba(124,58,237,0.2)',
+                borderRadius: '50%',
+                filter: 'blur(80px)',
               }}
             />
             
-            {/* Quote icon */}
-            <div
-              style={{
-                fontSize: format === 'instagram' ? '80px' : '60px',
-                color: 'rgba(255,255,255,0.8)',
-                marginBottom: '40px',
-                fontWeight: 'bold',
-              }}
-            >
-              "
-            </div>
-            
-            {/* Main content container */}
+            {/* Main content container - matches the page design */}
             <div
               style={{
                 display: 'flex',
@@ -480,20 +530,64 @@ export async function GET(request: NextRequest) {
                 alignItems: 'center',
                 textAlign: 'center',
                 maxWidth: '90%',
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                padding: format === 'instagram' ? '50px 40px' : '60px 50px',
+                borderRadius: '30px',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 zIndex: 2,
               }}
             >
+              {/* Large decorative quote */}
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '60px' : '80px',
+                  color: 'rgba(37,99,235,0.3)',
+                  marginBottom: format === 'instagram' ? '20px' : '30px',
+                  fontWeight: 'bold',
+                  lineHeight: '1',
+                }}
+              >
+                "
+              </div>
+              
+              {/* Business name with gradient */}
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '32px' : format === 'twitter' ? '28px' : '36px',
+                  fontWeight: 'bold',
+                  background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                  marginBottom: format === 'instagram' ? '25px' : '30px',
+                  lineHeight: '1.2',
+                }}
+              >
+                {businessName}
+              </div>
+              
+              {/* Blue underline */}
+              <div
+                style={{
+                  width: '80px',
+                  height: '4px',
+                  background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                  borderRadius: '2px',
+                  marginBottom: format === 'instagram' ? '25px' : '35px',
+                }}
+              />
+              
               {/* Feedback text */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '32px' : format === 'twitter' ? '22px' : '26px',
-                  color: 'white',
+                  fontSize: format === 'instagram' ? '20px' : format === 'twitter' ? '18px' : '24px',
+                  color: '#374151',
                   lineHeight: 1.4,
-                  marginBottom: '40px',
-                  fontWeight: '400',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  marginBottom: format === 'instagram' ? '25px' : '35px',
+                  fontStyle: 'italic',
                   maxWidth: '100%',
-                  wordWrap: 'break-word',
+                  fontWeight: '400',
                 }}
               >
                 {truncatedFeedback}
@@ -502,58 +596,64 @@ export async function GET(request: NextRequest) {
               {/* Stars */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '40px' : format === 'twitter' ? '32px' : '36px',
-                  color: '#FFD700',
-                  marginBottom: '30px',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                  letterSpacing: '4px',
+                  fontSize: format === 'instagram' ? '32px' : format === 'twitter' ? '28px' : '40px',
+                  color: '#fbbf24',
+                  marginBottom: format === 'instagram' ? '20px' : '25px',
+                  letterSpacing: '2px',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.1)',
                 }}
               >
                 {stars}
               </div>
               
+              {/* Rating text */}
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '14px' : '16px',
+                  color: '#6b7280',
+                  marginBottom: format === 'instagram' ? '20px' : '25px',
+                  fontWeight: '500',
+                }}
+              >
+                {rating} out of 5 stars
+              </div>
+              
               {/* Customer name */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '28px' : format === 'twitter' ? '18px' : '22px',
-                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: format === 'instagram' ? '18px' : format === 'twitter' ? '16px' : '20px',
+                  color: '#6b7280',
                   fontWeight: '600',
-                  marginBottom: '50px',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                  marginBottom: format === 'instagram' ? '15px' : '20px',
                 }}
               >
                 — {customerName}
               </div>
               
-              {/* Business name */}
+              {/* Verified badge */}
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '40px' : format === 'twitter' ? '30px' : '32px',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  backgroundColor: 'rgba(255,255,255,0.15)',
-                  padding: '20px 40px',
-                  borderRadius: '50px',
-                  border: '2px solid rgba(255,255,255,0.2)',
+                  fontSize: format === 'instagram' ? '11px' : '12px',
+                  color: '#9ca3af',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  marginBottom: format === 'instagram' ? '20px' : '25px',
+                  fontWeight: '500',
                 }}
               >
-                {businessName}
+                Verified Customer Review
               </div>
-            </div>
-            
-            {/* Bottom branding */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '30px',
-                right: '40px',
-                fontSize: '14px',
-                color: 'rgba(255,255,255,0.6)',
-                fontWeight: '500',
-              }}
-            >
-              Powered by FeedbackHub
+              
+              {/* Branding */}
+              <div
+                style={{
+                  fontSize: format === 'instagram' ? '12px' : '14px',
+                  color: '#9ca3af',
+                  fontWeight: '500',
+                }}
+              >
+                Powered by FeedbackHub
+              </div>
             </div>
           </div>
         ),
