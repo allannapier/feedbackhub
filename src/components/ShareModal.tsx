@@ -42,7 +42,6 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
   const [shareText, setShareText] = useState('')
   const [usage, setUsage] = useState<UserUsage | null>(null)
   const [loadingUsage, setLoadingUsage] = useState(false)
-  const [testimonialId, setTestimonialId] = useState<string>('')
 
   useEffect(() => {
     if (isOpen) {
@@ -70,39 +69,16 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
   const generateCard = async () => {
     setIsGenerating(true)
     try {
-      // First generate the testimonial to get the testimonialId
-      const generateResponse = await fetch('/api/generate-testimonial', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          feedback: response.text || `Rated us ${response.rating}/5 stars`,
-          rating: response.rating?.toString() || '5',
-          customerName: response.respondentName || 'A satisfied customer',
-          businessName: form.user?.name || form.title,
-          format: 'facebook'
-        })
+      const params = new URLSearchParams({
+        feedback: response.text || `Rated us ${response.rating}/5 stars`,
+        rating: response.rating?.toString() || '5',
+        name: response.respondentName || 'A satisfied customer',
+        business: form.user?.name || form.title,
+        format: 'web' // Default to web format for preview
       })
       
-      const generateData = await generateResponse.json()
-      if (generateData.success) {
-        // Store the testimonialId for sharing
-        setTestimonialId(generateData.testimonialId)
-        
-        const params = new URLSearchParams({
-          feedback: response.text || `Rated us ${response.rating}/5 stars`,
-          rating: response.rating?.toString() || '5',
-          name: response.respondentName || 'A satisfied customer',
-          business: form.user?.name || form.title,
-          format: 'web' // Default to web format for preview
-        })
-        
-        const url = `/api/testimonials?${params.toString()}`
-        setImageUrl(url)
-      } else {
-        throw new Error('Failed to generate testimonial')
-      }
+      const url = `/api/testimonials?${params.toString()}`
+      setImageUrl(url)
       
       // Generate engaging default share text with emojis and hashtags
       const businessName = form.user?.name || form.title
@@ -140,11 +116,6 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       business: form.user?.name || form.title,
     })
     
-    // Add testimonialId if available for better Open Graph images
-    if (testimonialId) {
-      shareParams.set('tid', testimonialId)
-    }
-    
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
     
     // Twitter with URL included in the tweet
@@ -173,11 +144,6 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       name: response.respondentName || 'A satisfied customer',
       business: form.user?.name || form.title,
     })
-    
-    // Add testimonialId if available for better Open Graph images
-    if (testimonialId) {
-      shareParams.set('tid', testimonialId)
-    }
     
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
     
@@ -209,18 +175,13 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       console.log('Could not copy to clipboard:', error)
     }
 
-    // Create a shareable URL with the testimonial data
+    // Create a shareable URL - Facebook will preview the actual page content
     const shareParams = new URLSearchParams({
       feedback: response.text || `Rated us ${response.rating}/5 stars`,
       rating: response.rating?.toString() || '5',
       name: response.respondentName || 'A satisfied customer',
       business: form.user?.name || form.title,
     })
-    
-    // Add testimonialId if available for better Open Graph images
-    if (testimonialId) {
-      shareParams.set('tid', testimonialId)
-    }
     
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
     
@@ -230,7 +191,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     console.log('Sharing URL:', shareUrl) // Debug log
     
     // Show user-friendly message
-    const message = `📘 Ready to share on Facebook!\n\n✅ Your post text has been copied to your clipboard.\n✅ High-quality image will display automatically\n\n🔗 Sharing: ${shareUrl.substring(0, 60)}...`
+    const message = `📘 Ready to share on Facebook!\n\n✅ Your post text has been copied to your clipboard.\n✅ Facebook will show a beautiful preview of your testimonial page\n\n🔗 Sharing: ${shareUrl.substring(0, 60)}...`
     
     alert(message)
     window.open(facebookUrl, '_blank', 'width=600,height=400')

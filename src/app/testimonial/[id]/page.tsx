@@ -17,30 +17,13 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const rating = searchParams.rating || '5'
   const customerName = searchParams.name || 'A satisfied customer'
   const businessName = searchParams.business || 'Our Business'
-  const testimonialId = searchParams.tid // Get stored testimonial ID
   
-  const title = `${businessName} - ${rating}/5 Stars`
-  const description = `"${feedback}" - ${customerName}`
+  const title = `${businessName} - ${rating}/5 Stars Customer Review`
+  const description = `"${feedback}" - ${customerName}. See what our customers are saying about ${businessName}.`
   
   // Base URL for the Open Graph URL
   const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
-  
-  // Try to use stored images if testimonialId is available
-  let ogImageUrl = `${baseUrl}/api/og?feedback=${encodeURIComponent(feedback.substring(0, 120))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&platform=facebook`
-  let linkedinImageUrl = `${baseUrl}/api/og?feedback=${encodeURIComponent(feedback.substring(0, 120))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&platform=linkedin`
-  let twitterImageUrl = `${baseUrl}/api/og?feedback=${encodeURIComponent(feedback.substring(0, 80))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&platform=twitter`
-  
-  if (testimonialId) {
-    // Use stored images from Supabase if available
-    try {
-      const supabaseUrl = 'https://fcedxvdoercnkyhnzwzf.supabase.co'
-      ogImageUrl = `${supabaseUrl}/storage/v1/object/public/testimonials/testimonial-${testimonialId}-facebook.png`
-      linkedinImageUrl = `${supabaseUrl}/storage/v1/object/public/testimonials/testimonial-${testimonialId}-linkedin.png`
-      twitterImageUrl = `${supabaseUrl}/storage/v1/object/public/testimonials/testimonial-${testimonialId}-twitter.png`
-    } catch (error) {
-      console.log('Using fallback OG images')
-    }
-  }
+  const pageUrl = `${baseUrl}/testimonial/${params.id}?${new URLSearchParams(searchParams as any).toString()}`
   
   return {
     title,
@@ -48,42 +31,25 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/testimonial/${params.id}`,
+      url: pageUrl,
       siteName: 'FeedbackHub',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `Customer testimonial for ${businessName}`,
-          type: 'image/png',
-        },
-      ],
       type: 'article',
       locale: 'en_US',
+      // Remove specific image so Facebook will generate preview from page content
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [twitterImageUrl],
       creator: '@feedbackhub',
       site: '@feedbackhub',
     },
-    // Add additional meta tags for better compatibility
+    // Clean up meta tags for better page preview
     other: {
-      'og:image:type': 'image/png',
-      'og:image:width': '1200',
-      'og:image:height': '630',
-      'og:image:secure_url': ogImageUrl,
-      'twitter:image:alt': `Customer testimonial for ${businessName}`,
-      // LinkedIn specific tags
-      'linkedin:owner': 'FeedbackHub',
-      'linkedin:image': linkedinImageUrl,
-      // Facebook specific tags
-      'fb:app_id': 'FeedbackHub',
       'article:author': businessName,
       'article:section': 'Customer Reviews',
+      'og:type': 'article',
+      'og:locale': 'en_US',
     }
   }
 }
@@ -97,25 +63,86 @@ export default function TestimonialPage({ params, searchParams }: TestimonialPag
   const stars = '★'.repeat(Math.max(1, Math.min(5, rating))) + '☆'.repeat(5 - Math.max(1, Math.min(5, rating)))
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center p-8">
-      <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 bg-black/10"></div>
+      <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
+      
+      {/* Main testimonial card */}
+      <div className="relative z-10 bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-12 max-w-4xl w-full text-center border border-white/20">
+        {/* Large decorative quote */}
+        <div className="text-6xl md:text-8xl text-blue-500/30 font-serif leading-none mb-6">"</div>
+        
+        {/* Business name header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{businessName}</h1>
-          <div className="text-6xl text-blue-600 mb-6">"</div>
-          <p className="text-2xl text-gray-700 italic mb-8 leading-relaxed">{feedback}</p>
-          <div className="text-4xl text-yellow-400 mb-6">{stars}</div>
-          <p className="text-xl text-gray-600 font-semibold">— {customerName}</p>
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            {businessName}
+          </h1>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
         </div>
         
-        <div className="border-t pt-8">
-          <p className="text-gray-500 mb-4">Powered by FeedbackHub</p>
-          <div className="flex gap-4 justify-center">
+        {/* Feedback content */}
+        <div className="mb-8">
+          <p className="text-xl md:text-3xl text-gray-700 italic leading-relaxed font-light max-w-3xl mx-auto">
+            {feedback}
+          </p>
+        </div>
+        
+        {/* Star rating */}
+        <div className="mb-8">
+          <div className="text-4xl md:text-6xl text-yellow-400 mb-4 tracking-wider drop-shadow-lg">
+            {stars}
+          </div>
+          <div className="text-lg md:text-xl text-gray-600 font-semibold">
+            {rating} out of 5 stars
+          </div>
+        </div>
+        
+        {/* Customer attribution */}
+        <div className="mb-12">
+          <div className="text-xl md:text-2xl text-gray-800 font-semibold mb-2">
+            — {customerName}
+          </div>
+          <div className="text-sm text-gray-500 uppercase tracking-wide">
+            Verified Customer Review
+          </div>
+        </div>
+        
+        {/* Call to action section */}
+        <div className="border-t border-gray-200 pt-8">
+          <div className="mb-6">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-3">
+              Love what you see? Get your own feedback system!
+            </h2>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Join thousands of businesses using FeedbackHub to collect reviews and create beautiful testimonials like this one.
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a 
-              href="/"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              href="https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              Create Your Own Feedback Forms
+              Create Your Feedback Forms
             </a>
+            <div className="text-sm text-gray-500">
+              Free to start • No credit card required
+            </div>
+          </div>
+        </div>
+        
+        {/* Branding */}
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            Powered by FeedbackHub
           </div>
         </div>
       </div>
