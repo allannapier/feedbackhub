@@ -25,6 +25,9 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
   const pageUrl = `${baseUrl}/testimonial/${params.id}?${new URLSearchParams(searchParams as any).toString()}`
   
+  // Generate a simple OG image URL that will create a visual representation
+  const ogImageUrl = `${baseUrl}/api/og-testimonial?feedback=${encodeURIComponent(feedback.substring(0, 100))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}`
+  
   return {
     title,
     description,
@@ -33,23 +36,32 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
       description,
       url: pageUrl,
       siteName: 'FeedbackHub',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `Customer testimonial for ${businessName}`,
+        },
+      ],
       type: 'article',
       locale: 'en_US',
-      // Remove specific image so Facebook will generate preview from page content
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [ogImageUrl],
       creator: '@feedbackhub',
       site: '@feedbackhub',
     },
-    // Clean up meta tags for better page preview
+    // Essential meta tags for Facebook
     other: {
-      'article:author': businessName,
-      'article:section': 'Customer Reviews',
       'og:type': 'article',
       'og:locale': 'en_US',
+      'og:site_name': 'FeedbackHub',
+      'article:author': businessName,
+      'article:section': 'Customer Reviews',
     }
   }
 }
