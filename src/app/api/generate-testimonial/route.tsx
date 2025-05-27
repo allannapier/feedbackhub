@@ -491,37 +491,11 @@ export async function GET(request: NextRequest) {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              fontFamily: 'Inter, system-ui, sans-serif',
+              fontFamily: 'system-ui, sans-serif',
               position: 'relative',
               padding: '40px',
             }}
           >
-            {/* Background decorative elements */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                width: '200px',
-                height: '200px',
-                background: 'rgba(255,255,255,0.1)',
-                borderRadius: '50%',
-                filter: 'blur(60px)',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '20px',
-                right: '20px',
-                width: '300px',
-                height: '300px',
-                background: 'rgba(124,58,237,0.2)',
-                borderRadius: '50%',
-                filter: 'blur(80px)',
-              }}
-            />
-            
             {/* Main content container - matches the page design */}
             <div
               style={{
@@ -529,14 +503,11 @@ export async function GET(request: NextRequest) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 textAlign: 'center',
-                maxWidth: '90%',
+                width: '90%',
                 backgroundColor: 'rgba(255,255,255,0.95)',
                 padding: format === 'instagram' ? '50px 40px' : '60px 50px',
                 borderRadius: '30px',
-                backdropFilter: 'blur(10px)',
                 border: '2px solid rgba(255,255,255,0.2)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                zIndex: 2,
               }}
             >
               {/* Large decorative quote */}
@@ -546,22 +517,18 @@ export async function GET(request: NextRequest) {
                   color: 'rgba(37,99,235,0.3)',
                   marginBottom: format === 'instagram' ? '20px' : '30px',
                   fontWeight: 'bold',
-                  lineHeight: '1',
                 }}
               >
                 "
               </div>
               
-              {/* Business name with gradient */}
+              {/* Business name */}
               <div
                 style={{
                   fontSize: format === 'instagram' ? '32px' : format === 'twitter' ? '28px' : '36px',
                   fontWeight: 'bold',
-                  background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-                  backgroundClip: 'text',
-                  color: 'transparent',
+                  color: '#2563eb',
                   marginBottom: format === 'instagram' ? '25px' : '30px',
-                  lineHeight: '1.2',
                 }}
               >
                 {businessName}
@@ -572,7 +539,7 @@ export async function GET(request: NextRequest) {
                 style={{
                   width: '80px',
                   height: '4px',
-                  background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                  backgroundColor: '#2563eb',
                   borderRadius: '2px',
                   marginBottom: format === 'instagram' ? '25px' : '35px',
                 }}
@@ -586,7 +553,6 @@ export async function GET(request: NextRequest) {
                   lineHeight: 1.4,
                   marginBottom: format === 'instagram' ? '25px' : '35px',
                   fontStyle: 'italic',
-                  maxWidth: '100%',
                   fontWeight: '400',
                 }}
               >
@@ -600,7 +566,6 @@ export async function GET(request: NextRequest) {
                   color: '#fbbf24',
                   marginBottom: format === 'instagram' ? '20px' : '25px',
                   letterSpacing: '2px',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.1)',
                 }}
               >
                 {stars}
@@ -635,13 +600,11 @@ export async function GET(request: NextRequest) {
                 style={{
                   fontSize: format === 'instagram' ? '11px' : '12px',
                   color: '#9ca3af',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
                   marginBottom: format === 'instagram' ? '20px' : '25px',
                   fontWeight: '500',
                 }}
               >
-                Verified Customer Review
+                VERIFIED CUSTOMER REVIEW
               </div>
               
               {/* Branding */}
