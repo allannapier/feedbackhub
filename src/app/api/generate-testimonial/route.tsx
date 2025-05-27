@@ -79,35 +79,35 @@ export async function POST(request: NextRequest) {
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '60px', color: '#2563eb', marginBottom: '20px' }}>
+            <div style={{ fontSize: '60px', color: '#2563eb', marginBottom: '20px', display: 'flex' }}>
               "
             </div>
             
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2563eb', marginBottom: '30px' }}>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2563eb', marginBottom: '30px', display: 'flex' }}>
               {businessName}
             </div>
             
-            <div style={{ fontSize: '20px', color: '#374151', fontStyle: 'italic', marginBottom: '30px' }}>
+            <div style={{ fontSize: '20px', color: '#374151', fontStyle: 'italic', marginBottom: '30px', display: 'flex' }}>
               {truncatedFeedback}
             </div>
             
-            <div style={{ fontSize: '36px', color: '#fbbf24', marginBottom: '20px' }}>
+            <div style={{ fontSize: '36px', color: '#fbbf24', marginBottom: '20px', display: 'flex' }}>
               {stars}
             </div>
             
-            <div style={{ fontSize: '16px', color: '#6b7280', marginBottom: '20px' }}>
+            <div style={{ fontSize: '16px', color: '#6b7280', marginBottom: '20px', display: 'flex' }}>
               {clampedRating} out of 5 stars
             </div>
             
-            <div style={{ fontSize: '18px', color: '#6b7280', fontWeight: '600', marginBottom: '20px' }}>
+            <div style={{ fontSize: '18px', color: '#6b7280', fontWeight: '600', marginBottom: '20px', display: 'flex' }}>
               — {customerName}
             </div>
             
-            <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '10px' }}>
+            <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '10px', display: 'flex' }}>
               VERIFIED CUSTOMER REVIEW
             </div>
             
-            <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+            <div style={{ fontSize: '12px', color: '#9ca3af', display: 'flex' }}>
               Powered by FeedbackHub
             </div>
           </div>
@@ -233,35 +233,35 @@ export async function GET(request: NextRequest) {
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '60px', color: '#2563eb', marginBottom: '20px' }}>
+            <div style={{ fontSize: '60px', color: '#2563eb', marginBottom: '20px', display: 'flex' }}>
               "
             </div>
             
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2563eb', marginBottom: '30px' }}>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2563eb', marginBottom: '30px', display: 'flex' }}>
               {businessName}
             </div>
             
-            <div style={{ fontSize: '20px', color: '#374151', fontStyle: 'italic', marginBottom: '30px' }}>
+            <div style={{ fontSize: '20px', color: '#374151', fontStyle: 'italic', marginBottom: '30px', display: 'flex' }}>
               {truncatedFeedback}
             </div>
             
-            <div style={{ fontSize: '36px', color: '#fbbf24', marginBottom: '20px' }}>
+            <div style={{ fontSize: '36px', color: '#fbbf24', marginBottom: '20px', display: 'flex' }}>
               {stars}
             </div>
             
-            <div style={{ fontSize: '16px', color: '#6b7280', marginBottom: '20px' }}>
+            <div style={{ fontSize: '16px', color: '#6b7280', marginBottom: '20px', display: 'flex' }}>
               {clampedRating} out of 5 stars
             </div>
             
-            <div style={{ fontSize: '18px', color: '#6b7280', fontWeight: '600', marginBottom: '20px' }}>
+            <div style={{ fontSize: '18px', color: '#6b7280', fontWeight: '600', marginBottom: '20px', display: 'flex' }}>
               — {customerName}
             </div>
             
-            <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '10px' }}>
+            <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '10px', display: 'flex' }}>
               VERIFIED CUSTOMER REVIEW
             </div>
             
-            <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+            <div style={{ fontSize: '12px', color: '#9ca3af', display: 'flex' }}>
               Powered by FeedbackHub
             </div>
           </div>
