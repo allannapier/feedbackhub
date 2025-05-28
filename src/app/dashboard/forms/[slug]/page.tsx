@@ -28,7 +28,7 @@ export default async function FormDetailPage({
     .from('Form')
     .select(`
       *,
-      user:User (name), // Fetch the related user's name
+      user:User (name),
       responses:Response(
         id,
         rating,
