@@ -6,13 +6,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     
     const feedback = searchParams.get('feedback') || 'Great service!'
-    const rating = parseInt(searchParams.get('rating') || '5')
     const customerName = searchParams.get('name') || 'Anonymous'
     const businessName = searchParams.get('business') || 'Our Business'
     const format = searchParams.get('format') || 'web' // web, instagram, facebook
-    const formType = searchParams.get('formType') || 'rating'; // Default to 'rating'
-    
-    // Conditional Rating Display Logic
+    const formType = searchParams.get('formType') || 'rating';
+    const rating = parseInt(searchParams.get('rating') || (formType === 'nps' ? '10' : '5'), 10); // Ensure rating is parsed after formType
+
+    // Rating display logic for ImageResponse (JSX)
     let ratingDisplayElement;
     if (formType === 'nps') {
       ratingDisplayElement = (
@@ -21,13 +21,22 @@ export async function GET(request: NextRequest) {
         </div>
       );
     } else { // Default to 5-star rating
-      const clampedRating = Math.max(0, Math.min(5, rating)); // Allow 0 stars
-      const stars = '★'.repeat(clampedRating) + '☆'.repeat(5 - clampedRating);
+      const clampedRatingForImage = Math.max(0, Math.min(5, rating));
+      const starsForImage = '★'.repeat(clampedRatingForImage) + '☆'.repeat(5 - clampedRatingForImage);
       ratingDisplayElement = (
         <div style={{ fontSize: format === 'instagram' ? '40px' : '36px', marginBottom: '24px', color: '#fbbf24', fontFamily: 'Arial, sans-serif' }}>
-          {stars}
+          {starsForImage}
         </div>
       );
+    }
+
+    // Rating display logic for HTML string preview
+    let ratingOutputForHtml: string;
+    if (formType === 'nps') {
+      ratingOutputForHtml = `${rating}/10`;
+    } else { // Default to 5-star rating
+      const clampedRatingForHtml = Math.max(0, Math.min(5, rating)); // Allow 0 stars for HTML as well
+      ratingOutputForHtml = '★'.repeat(clampedRatingForHtml) + '☆'.repeat(5 - clampedRatingForHtml);
     }
     
     // Set dimensions based on format
@@ -163,12 +172,7 @@ export async function GET(request: NextRequest) {
               color: #1f2937;
               margin-bottom: 24px;
             }
-            .quote {
-              font-size: 72px;
-              color: #4f46e5;
-              margin-bottom: 24px;
-              line-height: 1;
-            }
+            /* .quote class was removed as the large quote is no longer static */
             .feedback-text {
               font-size: 28px;
               color: #374151;
@@ -176,10 +180,16 @@ export async function GET(request: NextRequest) {
               margin-bottom: 32px;
               font-style: italic;
             }
-            .stars {
+            .rating-display { /* New class for unified rating display */
               font-size: 36px;
               margin-bottom: 24px;
-              color: #fbbf24;
+              /* Color will be set by specific type (stars vs nps text) */
+            }
+            .stars { /* Specific style for stars if needed, though covered by rating-display */
+              color: #fbbf24; /* Star color */
+            }
+            .nps-score { /* Specific style for NPS if needed */
+              color: #1f2937; /* NPS text color */
             }
             .customer-name {
               font-size: 24px;
@@ -215,9 +225,9 @@ export async function GET(request: NextRequest) {
         <body>
           <div class="card">
             <div class="business-name">${businessName}</div>
-            <div class="quote">"</div>
-            <div class="feedback-text">${feedback}</div>
-            <div class="stars">${stars}</div>
+            {/* Static quote div removed, feedback should include quotes if desired */}
+            <div class="feedback-text">${feedback.startsWith('"') && feedback.endsWith('"') ? feedback : `"${feedback}"`}</div>
+            <div class="rating-display ${formType === 'nps' ? 'nps-score' : 'stars'}">${ratingOutputForHtml}</div>
             <div class="customer-name">— ${customerName}</div>
             <div class="powered-by">Powered by FeedbackHub</div>
             
