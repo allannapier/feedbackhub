@@ -10,10 +10,25 @@ export async function GET(request: NextRequest) {
     const customerName = searchParams.get('name') || 'Anonymous'
     const businessName = searchParams.get('business') || 'Our Business'
     const format = searchParams.get('format') || 'web' // web, instagram, facebook
+    const formType = searchParams.get('formType') || 'rating'; // Default to 'rating'
     
-    // Generate star display (only for star ratings, clamp to 1-5 range)
-    const clampedRating = Math.max(1, Math.min(5, rating))
-    const stars = '★'.repeat(clampedRating) + '☆'.repeat(5 - clampedRating)
+    // Conditional Rating Display Logic
+    let ratingDisplayElement;
+    if (formType === 'nps') {
+      ratingDisplayElement = (
+        <div style={{ fontSize: format === 'instagram' ? '40px' : '36px', marginBottom: '24px', color: '#1f2937' }}>
+          {rating}/10
+        </div>
+      );
+    } else { // Default to 5-star rating
+      const clampedRating = Math.max(0, Math.min(5, rating)); // Allow 0 stars
+      const stars = '★'.repeat(clampedRating) + '☆'.repeat(5 - clampedRating);
+      ratingDisplayElement = (
+        <div style={{ fontSize: format === 'instagram' ? '40px' : '36px', marginBottom: '24px', color: '#fbbf24', fontFamily: 'Arial, sans-serif' }}>
+          {stars}
+        </div>
+      );
+    }
     
     // Set dimensions based on format
     let width = 800
@@ -70,16 +85,7 @@ export async function GET(request: NextRequest) {
                 {businessName}
               </div>
               
-              <div
-                style={{
-                  fontSize: format === 'instagram' ? '80px' : '72px',
-                  color: '#4f46e5',
-                  marginBottom: '24px',
-                  lineHeight: 1,
-                }}
-              >
-                "
-              </div>
+              {/* The following div for the large opening quote has been removed */}
               
               <div
                 style={{
@@ -94,15 +100,7 @@ export async function GET(request: NextRequest) {
                 {feedback}
               </div>
               
-              <div
-                style={{
-                  fontSize: format === 'instagram' ? '40px' : '36px',
-                  marginBottom: '24px',
-                  color: '#fbbf24',
-                }}
-              >
-                {stars}
-              </div>
+              {ratingDisplayElement}
               
               <div
                 style={{

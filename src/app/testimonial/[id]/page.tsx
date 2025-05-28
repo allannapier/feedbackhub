@@ -4,10 +4,11 @@ import { redirect } from 'next/navigation'
 interface TestimonialPageProps {
   params: { id: string }
   searchParams: {
-    feedback?: string
-    rating?: string
-    name?: string
-    business?: string
+    feedback?: string;
+    rating?: string;
+    name?: string;
+    business?: string;
+    formType?: string; // Add formType to searchParams type
   }
 }
 
@@ -31,6 +32,7 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   if (searchParams.rating) imageGenParams.set('rating', searchParams.rating);
   if (searchParams.name) imageGenParams.set('name', searchParams.name);
   if (searchParams.business) imageGenParams.set('business', searchParams.business);
+  if (searchParams.formType) imageGenParams.set('formType', searchParams.formType); // Add formType if present
   imageGenParams.set('download', 'true'); // Or perhaps false if we just want to display it
   imageGenParams.set('format', 'facebook'); // For 1200x630, suitable for OG images
   imageGenParams.set('uid', params.id); // Add unique ID for cache busting
@@ -73,20 +75,31 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
 
 export default function TestimonialPage({ params, searchParams }: TestimonialPageProps) {
   const feedback = searchParams.feedback || 'Great service!'
-  const rating = parseInt(searchParams.rating || '5')
+  const rating = parseInt(searchParams.rating || '5', 10)
   const customerName = searchParams.name || 'A satisfied customer'
   const businessName = searchParams.business || 'Our Business'
+  const formType = searchParams.formType || 'rating'; // Read formType for display logic, default to 'rating'
+
+  let ratingDisplay;
+  if (formType === 'nps') {
+    ratingDisplay = <div className="text-4xl text-gray-800 mb-6">{rating}/10</div>;
+  } else { // Default to 5-star rating
+    // Ensure star characters are used directly for potentially better rendering
+    const starsFilled = '★'.repeat(Math.max(0, Math.min(5, rating)));
+    const starsEmpty = '☆'.repeat(Math.max(0, 5 - Math.min(5, rating)));
+    ratingDisplay = <div className="text-4xl text-yellow-400 mb-6">{starsFilled}{starsEmpty}</div>;
+  }
   
-  const stars = '★'.repeat(Math.max(1, Math.min(5, rating))) + '☆'.repeat(5 - Math.max(1, Math.min(5, rating)))
-  
+  const displayFeedback = feedback.startsWith('"') && feedback.endsWith('"') ? feedback : `"${feedback}"`;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center p-8">
       <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">{businessName}</h1>
-          <div className="text-6xl text-blue-600 mb-6">"</div>
-          <p className="text-2xl text-gray-700 italic mb-8 leading-relaxed">{feedback}</p>
-          <div className="text-4xl text-yellow-400 mb-6">{stars}</div>
+          {/* Removed the static large quote div that was here */}
+          <p className="text-2xl text-gray-700 italic mb-8 leading-relaxed">{displayFeedback}</p>
+          {ratingDisplay}
           <p className="text-xl text-gray-600 font-semibold">— {customerName}</p>
         </div>
         

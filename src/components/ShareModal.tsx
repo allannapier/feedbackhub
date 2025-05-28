@@ -69,18 +69,34 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
   const generateCard = async () => {
     setIsGenerating(true)
     try {
+      let apiFeedbackText = response.text || '';
+      if (!response.text) {
+        if (form.type === 'nps') {
+          apiFeedbackText = `Rated us ${response.rating}/10`;
+        } else {
+          apiFeedbackText = `Rated us ${response.rating}/5`;
+        }
+      }
+
       const params = new URLSearchParams({
-        feedback: response.text || `Rated us ${response.rating}/5 stars`,
-        rating: response.rating?.toString() || '5',
+        feedback: apiFeedbackText, // Use the conditional text
+        rating: response.rating?.toString() || (form.type === 'nps' ? '10' : '5'), // Default rating if none
         name: response.respondentName || 'A satisfied customer',
         business: form.user?.name || form.title,
-      })
+        formType: form.type, // Pass formType
+      });
       
       const url = `/api/testimonials?${params.toString()}`
       setImageUrl(url)
       
       // Generate default share text
-      const defaultText = `🌟 We're thrilled to share this amazing feedback! ${response.text ? `"${response.text}"` : `${response.rating}/5 stars`} Thank you ${response.respondentName || 'to our customer'} for this review! #CustomerLove #Testimonial`
+      let ratingText = '';
+      if (form.type === 'nps') {
+        ratingText = `${response.rating}/10 score`;
+      } else { // Default to 5-star
+        ratingText = `${response.rating}/5 stars`;
+      }
+      const defaultText = `🌟 We're thrilled to share this amazing feedback! ${response.text ? `"${response.text}"` : ratingText} Thank you ${response.respondentName || 'to our customer'} for this review! #CustomerLove #Testimonial`;
       setShareText(defaultText)
       
     } catch (error) {
@@ -103,13 +119,14 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
 
     const testimonialPageParams = new URLSearchParams();
     if (response.text) testimonialPageParams.set('feedback', response.text);
-    else testimonialPageParams.set('feedback', `Rated us ${response.rating}/5 stars`);
+    else testimonialPageParams.set('feedback', `Rated us ${response.rating}/5 stars`); // This fallback might need form.type awareness if used directly
     if (response.rating) testimonialPageParams.set('rating', response.rating.toString());
-    else testimonialPageParams.set('rating', '5');
+    else testimonialPageParams.set('rating', (form.type === 'nps' ? '10' : '5'));
     if (response.respondentName) testimonialPageParams.set('name', response.respondentName);
     else testimonialPageParams.set('name', 'A satisfied customer');
     if (form.user?.name) testimonialPageParams.set('business', form.user.name);
     else testimonialPageParams.set('business', form.title);
+    testimonialPageParams.set('formType', form.type); // Add formType
 
     const sharePageUrl = `${window.location.origin}/testimonial/${response.id}?${testimonialPageParams.toString()}`;
     const tweetText = encodeURIComponent(shareText);
@@ -131,13 +148,14 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
 
     const testimonialPageParams = new URLSearchParams();
     if (response.text) testimonialPageParams.set('feedback', response.text);
-    else testimonialPageParams.set('feedback', `Rated us ${response.rating}/5 stars`);
+    else testimonialPageParams.set('feedback', `Rated us ${response.rating}/5 stars`); // This fallback might need form.type awareness if used directly
     if (response.rating) testimonialPageParams.set('rating', response.rating.toString());
-    else testimonialPageParams.set('rating', '5');
+    else testimonialPageParams.set('rating', (form.type === 'nps' ? '10' : '5'));
     if (response.respondentName) testimonialPageParams.set('name', response.respondentName);
     else testimonialPageParams.set('name', 'A satisfied customer');
     if (form.user?.name) testimonialPageParams.set('business', form.user.name);
     else testimonialPageParams.set('business', form.title);
+    testimonialPageParams.set('formType', form.type); // Add formType
 
     const sharePageUrl = `${window.location.origin}/testimonial/${response.id}?${testimonialPageParams.toString()}`;
     // LinkedIn uses the OG tags from sharePageUrl. A summary or text parameter is not reliably used for the main post content.
@@ -165,12 +183,16 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     }
 
     // Create a shareable URL with unique ID for better caching
-    const shareParams = new URLSearchParams({
-      feedback: response.text || `Rated us ${response.rating}/5 stars`,
-      rating: response.rating?.toString() || '5',
-      name: response.respondentName || 'A satisfied customer',
-      business: form.user?.name || form.title,
-    })
+    const shareParams = new URLSearchParams();
+    if (response.text) shareParams.set('feedback', response.text);
+    else shareParams.set('feedback', `Rated us ${response.rating}/5 stars`); // This fallback might need form.type awareness if used directly
+    if (response.rating) shareParams.set('rating', response.rating.toString());
+    else shareParams.set('rating', (form.type === 'nps' ? '10' : '5'));
+    if (response.respondentName) shareParams.set('name', response.respondentName);
+    else shareParams.set('name', 'A satisfied customer');
+    if (form.user?.name) shareParams.set('business', form.user.name);
+    else shareParams.set('business', form.title);
+    shareParams.set('formType', form.type); // Add formType
     
     // Use testimonial ID for unique URL that Facebook won't cache incorrectly
     const shareUrl = `${window.location.origin}/testimonial/${response.id}?${shareParams.toString()}`
@@ -214,14 +236,23 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
 
   const downloadInstagramImage = async () => {
     try {
+      let apiFeedbackTextInsta = response.text || '';
+      if (!response.text) {
+        if (form.type === 'nps') {
+          apiFeedbackTextInsta = `Rated us ${response.rating}/10`;
+        } else {
+          apiFeedbackTextInsta = `Rated us ${response.rating}/5`;
+        }
+      }
       const params = new URLSearchParams({
-        feedback: response.text || `Rated us ${response.rating}/5 stars`,
-        rating: response.rating?.toString() || '5',
+        feedback: apiFeedbackTextInsta,
+        rating: response.rating?.toString() || (form.type === 'nps' ? '10' : '5'),
         name: response.respondentName || 'A satisfied customer',
         business: form.user?.name || form.title,
+        formType: form.type, // Pass formType
         format: 'instagram',
         download: 'true'
-      })
+      });
       
       const url = `/api/testimonials?${params.toString()}`
       
