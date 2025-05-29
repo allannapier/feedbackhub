@@ -199,25 +199,6 @@ export async function GET(request: NextRequest) {
               font-size: 16px;
               color: #9ca3af;
             }
-            .download-actions {
-              margin-top: 32px;
-              display: flex;
-              gap: 16px;
-              justify-content: center;
-              flex-wrap: wrap;
-            }
-            .download-btn {
-              background: #4f46e5;
-              color: white;
-              padding: 12px 24px;
-              border-radius: 8px;
-              text-decoration: none;
-              font-weight: 600;
-              transition: background 0.2s;
-            }
-            .download-btn:hover {
-              background: #4338ca;
-            }
           </style>
         </head>
         <body>
@@ -227,24 +208,6 @@ export async function GET(request: NextRequest) {
             <div class="rating-display ${formType === 'nps' ? 'nps-score' : 'stars'}">${ratingOutputForHtml}</div>
             <div class="customer-name">— ${customerName}</div>
             <div class="powered-by">Powered by FeedbackHub</div>
-            
-            <div class="download-actions">
-              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=instagram" 
-                 class="download-btn" 
-                 download="testimonial-instagram.png">
-                📱 Download for Instagram
-              </a>
-              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=facebook" 
-                 class="download-btn" 
-                 download="testimonial-facebook.png">
-                📘 Download for Facebook
-              </a>
-              <a href="/api/testimonials?${searchParams.toString()}&download=true&format=web" 
-                 class="download-btn" 
-                 download="testimonial-web.png">
-                🌐 Download Web Version
-              </a>
-            </div>
           </div>
         </body>
       </html>
