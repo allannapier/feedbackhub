@@ -223,7 +223,6 @@ export async function GET(request: NextRequest) {
         <body>
           <div class="card">
             <div class="business-name">${businessName}</div>
-            {/* Static quote div removed, feedback should include quotes if desired */}
             <div class="feedback-text">${feedback.startsWith('"') && feedback.endsWith('"') ? feedback : `"${feedback}"`}</div>
             <div class="rating-display ${formType === 'nps' ? 'nps-score' : 'stars'}">${ratingOutputForHtml}</div>
             <div class="customer-name">— ${customerName}</div>
