@@ -43,19 +43,22 @@ model Form {
   @@index([slug])
 }
 model Response {
-  id            String    @id @default(cuid())
-  formId        String
-  form          Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
-  rating        Int?      // For rating type
-  text          String?   // For text responses
-  answer        String?   // For yes/no or multiple choice
-  respondentEmail String?
-  respondentName  String?
-  metadata      Json?     // IP, user agent, etc
-  shared        Boolean   @default(false)
-  sharedAt      DateTime?
-  shareData     Json?     // Which platforms it was shared to
-  createdAt     DateTime  @default(now())
+  id               String    @id @default(cuid())
+  formId           String
+  form             Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  rating           Int?      // For rating type
+  text             String?   // For text responses
+  answer           String?   // For yes/no or multiple choice
+  respondentEmail  String?
+  respondentName   String?
+  respondentCompany String?
+  respondentPhone  String?
+  consentToShare   Boolean   @default(false) // Consent for sharing review
+  metadata         Json?     // IP, user agent, etc
+  shared           Boolean   @default(false)
+  sharedAt         DateTime?
+  shareData        Json?     // Which platforms it was shared to
+  createdAt        DateTime  @default(now())
   
   @@index([formId])
   @@index([createdAt])

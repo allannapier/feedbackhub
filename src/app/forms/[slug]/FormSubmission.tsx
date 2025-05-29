@@ -20,6 +20,9 @@ export default function FormSubmission({ form }: FormSubmissionProps) {
     answer?: string
     respondentEmail?: string
     respondentName?: string
+    respondentCompany?: string
+    respondentPhone?: string
+    consentToShare?: boolean
   }>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -28,6 +31,12 @@ export default function FormSubmission({ form }: FormSubmissionProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validate consent if required
+    if (form.settings?.requireConsent && !response.consentToShare) {
+      setMessage('Please confirm that you consent to sharing your feedback')
+      return
+    }
+
     // Validate response based on form type
     if (form.type === 'rating' && !response.rating) {
       setMessage('Please select a rating')
@@ -61,6 +70,9 @@ export default function FormSubmission({ form }: FormSubmissionProps) {
           answer: response.answer,
           respondentEmail: response.respondentEmail,
           respondentName: response.respondentName,
+          respondentCompany: response.respondentCompany,
+          respondentPhone: response.respondentPhone,
+          consentToShare: response.consentToShare || false,
           metadata: {
             userAgent: navigator.userAgent,
             timestamp: new Date().toISOString()
@@ -198,32 +210,89 @@ export default function FormSubmission({ form }: FormSubmissionProps) {
         </div>
       )}
 
-      {/* Optional Email Collection */}
-      {form.settings?.collectEmail && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Name (optional)
-            </label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Your name"
-              value={response.respondentName || ''}
-              onChange={(e) => setResponse({ ...response, respondentName: e.target.value })}
-            />
+      {/* Optional Information Collection */}
+      {(form.settings?.collectName || form.settings?.collectEmail || form.settings?.collectCompany || form.settings?.collectPhone) && (
+        <div className="space-y-4">
+          <h4 className="text-lg font-medium text-gray-900">Tell us about yourself (optional)</h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {form.settings?.collectName && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Your name"
+                  value={response.respondentName || ''}
+                  onChange={(e) => setResponse({ ...response, respondentName: e.target.value })}
+                />
+              </div>
+            )}
+            
+            {form.settings?.collectEmail && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="your@email.com"
+                  value={response.respondentEmail || ''}
+                  onChange={(e) => setResponse({ ...response, respondentEmail: e.target.value })}
+                />
+              </div>
+            )}
+            
+            {form.settings?.collectCompany && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Your company"
+                  value={response.respondentCompany || ''}
+                  onChange={(e) => setResponse({ ...response, respondentCompany: e.target.value })}
+                />
+              </div>
+            )}
+            
+            {form.settings?.collectPhone && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="+1 (555) 123-4567"
+                  value={response.respondentPhone || ''}
+                  onChange={(e) => setResponse({ ...response, respondentPhone: e.target.value })}
+                />
+              </div>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email (optional)
-            </label>
+        </div>
+      )}
+
+      {/* Consent Checkbox */}
+      {form.settings?.requireConsent && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start">
             <input
-              type="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="your@email.com"
-              value={response.respondentEmail || ''}
-              onChange={(e) => setResponse({ ...response, respondentEmail: e.target.value })}
+              type="checkbox"
+              id="consentToShare"
+              checked={response.consentToShare || false}
+              onChange={(e) => setResponse({ ...response, consentToShare: e.target.checked })}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
             />
+            <label htmlFor="consentToShare" className="ml-3 text-sm text-gray-700">
+              <span className="font-medium">Sharing Permission:</span> I consent to having my feedback shared publicly as a testimonial for marketing purposes. I understand that my response may be used on social media, websites, or other promotional materials.
+            </label>
           </div>
         </div>
       )}
