@@ -139,6 +139,9 @@ export async function GET(request: NextRequest) {
     }
     
     // Return HTML for preview (existing functionality)
+    const quotedFeedback = feedback.startsWith('"') && feedback.endsWith('"') ? feedback : `"${feedback}"`;
+    const ratingClass = formType === 'nps' ? 'nps-score' : 'stars';
+    
     const html = `
       <!DOCTYPE html>
       <html>
@@ -170,7 +173,6 @@ export async function GET(request: NextRequest) {
               color: #1f2937;
               margin-bottom: 24px;
             }
-            /* .quote class was removed as the large quote is no longer static */
             .feedback-text {
               font-size: 28px;
               color: #374151;
@@ -178,16 +180,15 @@ export async function GET(request: NextRequest) {
               margin-bottom: 32px;
               font-style: italic;
             }
-            .rating-display { /* New class for unified rating display */
+            .rating-display {
               font-size: 36px;
               margin-bottom: 24px;
-              /* Color will be set by specific type (stars vs nps text) */
             }
-            .stars { /* Specific style for stars if needed, though covered by rating-display */
-              color: #fbbf24; /* Star color */
+            .stars {
+              color: #fbbf24;
             }
-            .nps-score { /* Specific style for NPS if needed */
-              color: #1f2937; /* NPS text color */
+            .nps-score {
+              color: #1f2937;
             }
             .customer-name {
               font-size: 24px;
@@ -223,9 +224,8 @@ export async function GET(request: NextRequest) {
         <body>
           <div class="card">
             <div class="business-name">${businessName}</div>
-            {/* Static quote div removed, feedback should include quotes if desired */}
-            <div class="feedback-text">${feedback.startsWith('"') && feedback.endsWith('"') ? feedback : `"${feedback}"`}</div>
-            <div class="rating-display ${formType === 'nps' ? 'nps-score' : 'stars'}">${ratingOutputForHtml}</div>
+            <div class="feedback-text">${quotedFeedback}</div>
+            <div class="rating-display ${ratingClass}">${ratingOutputForHtml}</div>
             <div class="customer-name">— ${customerName}</div>
             <div class="powered-by">Powered by FeedbackHub</div>
             
