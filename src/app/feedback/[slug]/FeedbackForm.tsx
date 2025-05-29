@@ -82,13 +82,13 @@ export default function FeedbackForm({ form }: FeedbackFormProps) {
                 key={star}
                 type="button"
                 onClick={() => setRating(star)}
-                className={`text-3xl transition-colors ${
-                  rating && rating >= star
-                    ? 'text-yellow-400'
-                    : 'text-gray-300 hover:text-yellow-200'
-                }`}
+                className="text-3xl transition-colors focus:outline-none"
               >
-                ⭐
+                {rating && rating >= star ? (
+                  <span className="text-yellow-400">★</span>
+                ) : (
+                  <span className="text-gray-300 hover:text-yellow-200">☆</span>
+                )}
               </button>
             ))}
           </div>

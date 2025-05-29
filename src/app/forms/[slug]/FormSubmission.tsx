@@ -121,13 +121,13 @@ export default function FormSubmission({ form }: FormSubmissionProps) {
                 key={star}
                 type="button"
                 onClick={() => setResponse({ ...response, rating: star })}
-                className={`text-4xl transition-colors ${
-                  response.rating && response.rating >= star
-                    ? 'text-yellow-400'
-                    : 'text-gray-300 hover:text-yellow-300'
-                }`}
+                className="text-4xl transition-colors focus:outline-none"
               >
-                ⭐
+                {response.rating && response.rating >= star ? (
+                  <span className="text-yellow-400">★</span>
+                ) : (
+                  <span className="text-gray-300 hover:text-yellow-300">☆</span>
+                )}
               </button>
             ))}
           </div>
