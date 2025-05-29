@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     
     const feedback = searchParams.get('feedback') || 'Great service!'
     const customerName = searchParams.get('name') || 'Anonymous'
+    const customerCompany = searchParams.get('company') || ''
     const businessName = searchParams.get('business') || 'Our Business'
     const format = searchParams.get('format') || 'web' // web, instagram, facebook
     const formType = searchParams.get('formType') || 'rating';
@@ -164,10 +165,15 @@ export async function GET(request: NextRequest) {
               max-width: 600px;
               text-align: center;
             }
-            .business-name {
+            .customer-name {
               font-size: 32px;
               font-weight: bold;
               color: #1f2937;
+              margin-bottom: 8px;
+            }
+            .customer-company {
+              font-size: 18px;
+              color: #6b7280;
               margin-bottom: 24px;
             }
             /* .quote class was removed as the large quote is no longer static */
@@ -203,10 +209,10 @@ export async function GET(request: NextRequest) {
         </head>
         <body>
           <div class="card">
-            <div class="business-name">${businessName}</div>
+            <div class="customer-name">${customerName}</div>
+            ${customerCompany ? `<div class="customer-company">${customerCompany}</div>` : ''}
             <div class="feedback-text">${feedback.startsWith('"') && feedback.endsWith('"') ? feedback : `"${feedback}"`}</div>
             <div class="rating-display ${formType === 'nps' ? 'nps-score' : 'stars'}">${ratingOutputForHtml}</div>
-            <div class="customer-name">— ${customerName}</div>
             <div class="powered-by">Powered by FeedbackHub</div>
           </div>
         </body>

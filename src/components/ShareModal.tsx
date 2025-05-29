@@ -10,6 +10,7 @@ interface ShareModalProps {
     rating?: number
     text?: string
     respondentName?: string
+    respondentCompany?: string
     formId: string
   }
   form: {
@@ -82,7 +83,8 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
         feedback: apiFeedbackText, // Use the conditional text
         rating: response.rating?.toString() || (form.type === 'nps' ? '10' : '5'), // Default rating if none
         name: response.respondentName || 'A satisfied customer',
-        business: form.user?.name || form.title,
+        company: response.respondentCompany || '', // Customer's company
+        business: form.user?.name || form.title, // Business name for "Powered by" or context
         formType: form.type, // Pass formType
       });
       
@@ -124,6 +126,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     else testimonialPageParams.set('rating', (form.type === 'nps' ? '10' : '5'));
     if (response.respondentName) testimonialPageParams.set('name', response.respondentName);
     else testimonialPageParams.set('name', 'A satisfied customer');
+    if (response.respondentCompany) testimonialPageParams.set('company', response.respondentCompany);
     if (form.user?.name) testimonialPageParams.set('business', form.user.name);
     else testimonialPageParams.set('business', form.title);
     testimonialPageParams.set('formType', form.type); // Add formType
@@ -153,6 +156,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     else testimonialPageParams.set('rating', (form.type === 'nps' ? '10' : '5'));
     if (response.respondentName) testimonialPageParams.set('name', response.respondentName);
     else testimonialPageParams.set('name', 'A satisfied customer');
+    if (response.respondentCompany) testimonialPageParams.set('company', response.respondentCompany);
     if (form.user?.name) testimonialPageParams.set('business', form.user.name);
     else testimonialPageParams.set('business', form.title);
     testimonialPageParams.set('formType', form.type); // Add formType
@@ -190,6 +194,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
     else shareParams.set('rating', (form.type === 'nps' ? '10' : '5'));
     if (response.respondentName) shareParams.set('name', response.respondentName);
     else shareParams.set('name', 'A satisfied customer');
+    if (response.respondentCompany) shareParams.set('company', response.respondentCompany);
     if (form.user?.name) shareParams.set('business', form.user.name);
     else shareParams.set('business', form.title);
     shareParams.set('formType', form.type); // Add formType
@@ -248,6 +253,7 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
         feedback: apiFeedbackTextInsta,
         rating: response.rating?.toString() || (form.type === 'nps' ? '10' : '5'),
         name: response.respondentName || 'A satisfied customer',
+        company: response.respondentCompany || '',
         business: form.user?.name || form.title,
         formType: form.type, // Pass formType
         format: 'instagram',
