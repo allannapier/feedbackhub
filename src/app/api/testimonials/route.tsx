@@ -85,16 +85,14 @@ export async function GET(request: NextRequest) {
             >
               <div
                 style={{
-                  fontSize: format === 'instagram' ? '36px' : '32px',
+                  fontSize: format === 'instagram' ? '32px' : '28px', // Reduced font size
                   fontWeight: 'bold',
                   color: '#1f2937',
                   marginBottom: '24px',
                 }}
               >
-                {businessName}
+                Feedback for {businessName}
               </div>
-              
-              {/* The following div for the large opening quote has been removed */}
               
               <div
                 style={{
@@ -106,7 +104,7 @@ export async function GET(request: NextRequest) {
                   maxWidth: '80%',
                 }}
               >
-                {feedback}
+                "{feedback}" {/* Ensure feedback is always quoted */}
               </div>
               
               {ratingDisplayElement}
