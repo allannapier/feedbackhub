@@ -4,11 +4,11 @@ import { redirect } from 'next/navigation'
 interface TestimonialPageProps {
   params: { id: string }
   searchParams: {
-    feedback?: string
-    rating?: string
-    name?: string
-    business?: string
-    tid?: string
+    feedback?: string;
+    rating?: string;
+    name?: string;
+    business?: string;
+    formType?: string; // Add formType to searchParams type
   }
 }
 
@@ -18,16 +18,26 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const customerName = searchParams.name || 'A satisfied customer'
   const businessName = searchParams.business || 'Our Business'
   
-  const title = `${businessName} - ${rating}/5 Stars Customer Review`
-  const description = `"${feedback}" - ${customerName}. See what our customers are saying about ${businessName}.`
-  
-  // Base URL for the Open Graph URL
-  const baseUrl = 'https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app'
-  const pageUrl = `${baseUrl}/testimonial/${params.id}?${new URLSearchParams(searchParams as any).toString()}`
-  
-  // Generate a simple OG image URL that will create a visual representation
-  const timestamp = Date.now() // Cache busting
-  const ogImageUrl = `${baseUrl}/api/generate-testimonial?feedback=${encodeURIComponent(feedback.substring(0, 100))}&rating=${rating}&name=${encodeURIComponent(customerName)}&business=${encodeURIComponent(businessName)}&format=facebook&download=true&v=${timestamp}`
+  const title = `${businessName} - ${rating}/5 Stars`
+  const description = `"${feedback}" - ${customerName}`
+
+  // Determine siteOrigin. Use NEXT_PUBLIC_APP_URL or fallback for local dev.
+  // VERCEL_URL includes http/https, NEXT_PUBLIC_VERCEL_URL is just the domain.
+  // For server-side generation, VERCEL_URL is preferred if available and correctly prefixed.
+  // For simplicity and consistency with typical Next.js setups, we'll use NEXT_PUBLIC_APP_URL.
+  const siteOrigin = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+  const imageGenParams = new URLSearchParams();
+  if (searchParams.feedback) imageGenParams.set('feedback', searchParams.feedback);
+  if (searchParams.rating) imageGenParams.set('rating', searchParams.rating);
+  if (searchParams.name) imageGenParams.set('name', searchParams.name);
+  if (searchParams.business) imageGenParams.set('business', searchParams.business);
+  if (searchParams.formType) imageGenParams.set('formType', searchParams.formType); // Add formType if present
+  imageGenParams.set('download', 'true'); // Or perhaps false if we just want to display it
+  imageGenParams.set('format', 'facebook'); // For 1200x630, suitable for OG images
+  imageGenParams.set('uid', params.id); // Add unique ID for cache busting
+
+  const imageUrl = `${siteOrigin}/api/testimonials?${imageGenParams.toString()}`;
   
   return {
     title,
@@ -35,127 +45,73 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
     openGraph: {
       title,
       description,
-      url: pageUrl,
+      url: `${siteOrigin}/testimonial/${params.id}`, // Use siteOrigin
       siteName: 'FeedbackHub',
       images: [
         {
-          url: ogImageUrl,
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: `Customer testimonial for ${businessName}`,
         },
       ],
-      type: 'article',
-      locale: 'en_US',
+      type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImageUrl],
-      creator: '@feedbackhub',
-      site: '@feedbackhub',
+      images: [imageUrl],
     },
-    // Essential meta tags for Facebook
+    // Add additional meta tags for better compatibility
     other: {
-      'og:type': 'article',
-      'og:locale': 'en_US',
-      'og:site_name': 'FeedbackHub',
-      'article:author': businessName,
-      'article:section': 'Customer Reviews',
+      'fb:app_id': '12345', // You can add your actual Facebook App ID here if you have one
+      'og:image:type': 'image/png',
+      'og:image:width': '1200',
+      'og:image:height': '630',
     }
   }
 }
 
 export default function TestimonialPage({ params, searchParams }: TestimonialPageProps) {
   const feedback = searchParams.feedback || 'Great service!'
-  const rating = parseInt(searchParams.rating || '5')
+  const rating = parseInt(searchParams.rating || '5', 10)
   const customerName = searchParams.name || 'A satisfied customer'
   const businessName = searchParams.business || 'Our Business'
+  const formType = searchParams.formType || 'rating'; // Read formType for display logic, default to 'rating'
+
+  let ratingDisplay;
+  if (formType === 'nps') {
+    ratingDisplay = <div className="text-4xl text-gray-800 mb-6">{rating}/10</div>;
+  } else { // Default to 5-star rating
+    // Ensure star characters are used directly for potentially better rendering
+    const starsFilled = '★'.repeat(Math.max(0, Math.min(5, rating)));
+    const starsEmpty = '☆'.repeat(Math.max(0, 5 - Math.min(5, rating)));
+    ratingDisplay = <div className="text-4xl text-yellow-400 mb-6">{starsFilled}{starsEmpty}</div>;
+  }
   
-  const stars = '★'.repeat(Math.max(1, Math.min(5, rating))) + '☆'.repeat(5 - Math.max(1, Math.min(5, rating)))
-  
+  const displayFeedback = feedback.startsWith('"') && feedback.endsWith('"') ? feedback : `"${feedback}"`;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 bg-black/10"></div>
-      <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl"></div>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
-      
-      {/* Main testimonial card */}
-      <div className="relative z-10 bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-12 max-w-4xl w-full text-center border border-white/20">
-        {/* Large decorative quote */}
-        <div className="text-6xl md:text-8xl text-blue-500/30 font-serif leading-none mb-6">"</div>
-        
-        {/* Business name header */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center p-8">
+      <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            {businessName}
-          </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{businessName}</h1>
+          {/* Removed the static large quote div that was here */}
+          <p className="text-2xl text-gray-700 italic mb-8 leading-relaxed">{displayFeedback}</p>
+          {ratingDisplay}
+          <p className="text-xl text-gray-600 font-semibold">— {customerName}</p>
         </div>
         
-        {/* Feedback content */}
-        <div className="mb-8">
-          <p className="text-xl md:text-3xl text-gray-700 italic leading-relaxed font-light max-w-3xl mx-auto">
-            {feedback}
-          </p>
-        </div>
-        
-        {/* Star rating */}
-        <div className="mb-8">
-          <div className="text-4xl md:text-6xl text-yellow-400 mb-4 tracking-wider drop-shadow-lg">
-            {stars}
-          </div>
-          <div className="text-lg md:text-xl text-gray-600 font-semibold">
-            {rating} out of 5 stars
-          </div>
-        </div>
-        
-        {/* Customer attribution */}
-        <div className="mb-12">
-          <div className="text-xl md:text-2xl text-gray-800 font-semibold mb-2">
-            — {customerName}
-          </div>
-          <div className="text-sm text-gray-500 uppercase tracking-wide">
-            Verified Customer Review
-          </div>
-        </div>
-        
-        {/* Call to action section */}
-        <div className="border-t border-gray-200 pt-8">
-          <div className="mb-6">
-            <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-3">
-              Love what you see? Get your own feedback system!
-            </h2>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Join thousands of businesses using FeedbackHub to collect reviews and create beautiful testimonials like this one.
-            </p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="border-t pt-8">
+          <p className="text-gray-500 mb-4">Powered by FeedbackHub</p>
+          <div className="flex gap-4 justify-center">
             <a 
-              href="https://feedbackhub-git-main-hobby-projects-8e6b5aff.vercel.app"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              href="/"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Create Your Feedback Forms
+              Create Your Own Feedback Forms
             </a>
-            <div className="text-sm text-gray-500">
-              Free to start • No credit card required
-            </div>
-          </div>
-        </div>
-        
-        {/* Branding */}
-        <div className="mt-8 pt-6 border-t border-gray-100">
-          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </div>
-            Powered by FeedbackHub
           </div>
         </div>
       </div>
