@@ -17,27 +17,22 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
   const rating = searchParams.rating || '5'
   const customerName = searchParams.name || 'A satisfied customer'
   const businessName = searchParams.business || 'Our Business'
+  const formType = searchParams.formType || 'rating'
   
-  const title = `${businessName} - ${rating}/5 Stars`
+  const title = `${businessName} - ${rating}/${formType === 'nps' ? '10' : '5'} ${formType === 'nps' ? 'Score' : 'Stars'}`
   const description = `"${feedback}" - ${customerName}`
 
-  // Determine siteOrigin. Use NEXT_PUBLIC_APP_URL or fallback for local dev.
-  // VERCEL_URL includes http/https, NEXT_PUBLIC_VERCEL_URL is just the domain.
-  // For server-side generation, VERCEL_URL is preferred if available and correctly prefixed.
-  // For simplicity and consistency with typical Next.js setups, we'll use NEXT_PUBLIC_APP_URL.
-  const siteOrigin = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-
-  const imageGenParams = new URLSearchParams();
-  if (searchParams.feedback) imageGenParams.set('feedback', searchParams.feedback);
-  if (searchParams.rating) imageGenParams.set('rating', searchParams.rating);
-  if (searchParams.name) imageGenParams.set('name', searchParams.name);
-  if (searchParams.business) imageGenParams.set('business', searchParams.business);
-  if (searchParams.formType) imageGenParams.set('formType', searchParams.formType); // Add formType if present
-  imageGenParams.set('download', 'true'); // Or perhaps false if we just want to display it
-  imageGenParams.set('format', 'facebook'); // For 1200x630, suitable for OG images
-  imageGenParams.set('uid', params.id); // Add unique ID for cache busting
-
-  const imageUrl = `${siteOrigin}/api/testimonials?${imageGenParams.toString()}`;
+  // Build URL with query params for the OG image
+  const ogImageParams = new URLSearchParams()
+  if (searchParams.feedback) ogImageParams.set('feedback', searchParams.feedback)
+  if (searchParams.rating) ogImageParams.set('rating', searchParams.rating)
+  if (searchParams.name) ogImageParams.set('name', searchParams.name)
+  if (searchParams.company) ogImageParams.set('company', searchParams.company)
+  if (searchParams.business) ogImageParams.set('business', searchParams.business)
+  if (searchParams.formType) ogImageParams.set('formType', searchParams.formType)
+  
+  // Use the dedicated og-image route for better reliability
+  const imageUrl = `/testimonial/${params.id}/og-image?${ogImageParams.toString()}`;
   
   return {
     title,
@@ -45,14 +40,12 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
     openGraph: {
       title,
       description,
-      url: `${siteOrigin}/testimonial/${params.id}`, // Use siteOrigin
-      siteName: 'FeedbackHub',
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: `Customer testimonial for ${businessName}`,
+          alt: `${businessName} testimonial from ${customerName}`,
         },
       ],
       type: 'website',
@@ -63,13 +56,6 @@ export async function generateMetadata({ params, searchParams }: TestimonialPage
       description,
       images: [imageUrl],
     },
-    // Add additional meta tags for better compatibility
-    other: {
-      'fb:app_id': '12345', // You can add your actual Facebook App ID here if you have one
-      'og:image:type': 'image/png',
-      'og:image:width': '1200',
-      'og:image:height': '630',
-    }
   }
 }
 

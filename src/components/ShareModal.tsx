@@ -260,17 +260,23 @@ export function ShareModal({ response, form, isOpen, onClose }: ShareModalProps)
       return
     }
 
-    // Copy share text to clipboard first
+    const shareUrl = generateTestimonialPageUrl()
+    
+    // For Facebook, we need to ensure the URL is absolute
+    const absoluteUrl = shareUrl.startsWith('http') ? shareUrl : `${window.location.origin}${shareUrl}`
+    
+    // Use Facebook's share dialog URL
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(absoluteUrl)}`
+    
+    // Copy text to clipboard as fallback
     try {
       await navigator.clipboard.writeText(shareText)
+      alert('📋 Share text copied to clipboard!\n\nThe Facebook share dialog will open. You can paste the text there.')
     } catch (error) {
       console.log('Could not copy to clipboard:', error)
     }
-
-    const shareUrl = generateTestimonialPageUrl()
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     
-    window.open(facebookUrl, '_blank')
+    window.open(facebookUrl, '_blank', 'width=600,height=400')
     await markAsShared('facebook')
   }
   const shareToInstagram = async () => {
