@@ -7,8 +7,9 @@ interface TestimonialPageProps {
     feedback?: string;
     rating?: string;
     name?: string;
+    company?: string;
     business?: string;
-    formType?: string; // Add formType to searchParams type
+    formType?: string;
   }
 }
 
@@ -63,6 +64,7 @@ export default function TestimonialPage({ params, searchParams }: TestimonialPag
   const feedback = searchParams.feedback || 'Great service!'
   const rating = parseInt(searchParams.rating || '5', 10)
   const customerName = searchParams.name || 'A satisfied customer'
+  const customerCompany = searchParams.company || ''
   const businessName = searchParams.business || 'Our Business'
   const formType = searchParams.formType || 'rating'; // Read formType for display logic, default to 'rating'
 
@@ -87,6 +89,9 @@ export default function TestimonialPage({ params, searchParams }: TestimonialPag
           <p className="text-2xl text-gray-700 italic mb-8 leading-relaxed">{displayFeedback}</p>
           {ratingDisplay}
           <p className="text-xl text-gray-600 font-semibold">— {customerName}</p>
+          {customerCompany && (
+            <p className="text-lg text-gray-500 mt-1">{customerCompany}</p>
+          )}
         </div>
         
         <div className="border-t pt-8">
